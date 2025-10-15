@@ -11,8 +11,8 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
-Private Const p_PropertyCount As Long = 9
-Private Const MaximumLevel As Long = 100
+Private Const p_PropertyCount As Long = 12
+Private Const MaximumLevel    As Long = 100
 
 Private p_Definition         As FumonDefinition
 Private p_Expirience         As Range
@@ -23,6 +23,7 @@ Private p_CurrentSpAttack    As Range
 Private p_CurrentSpDefense   As Range
 Private p_CurrentInitiative  As Range
 Private p_Attacks            As Attacks
+
 
 
 Public Property Let Definition(n_Definition        As FumonDefinition) : Set p_Definition        = n_Definition         : End Property
@@ -51,7 +52,7 @@ Public Property Get Attacks()                      As Attacks          : Set Att
 Public Function Create(Rng As Range) As Fumon
     Set Create = New Fumon
     With Create
-        .Definition        = FumonGame.FactoryServer.FumonDefinition(Rng.Offset(0, 0).Value)
+        .Definition        = FactoryServer.FumonDefinitions(Rng.Offset(0, 0).Value)
         .Expirience        = Rng.Offset(0, 1)
         .CurrentHealth     = Rng.Offset(0, 2)
         .CurrentAttack     = Rng.Offset(0, 3)
@@ -59,7 +60,7 @@ Public Function Create(Rng As Range) As Fumon
         .CurrentSpAttack   = Rng.Offset(0, 5)
         .CurrentSpDefense  = Rng.Offset(0, 6)
         .CurrentInitiative = Rng.Offset(0, 7)
-        .Attacks           = FumonGame.Attacks.Create(Rng.Offset(0, 8))
+        .Attacks           = FactoryAttacks.Create(Rng.Offset(0, 8))
         .HealAndReset
     End With
 End Function
@@ -85,25 +86,28 @@ Public Sub HealAndReset()
     Call Reset()
 End Sub
 Public Sub Heal()
-    Dim Level As Long
-    Level = GetLevel(Expirience.Value)
-    CurrentHealth.Value = CLng(Definition.Health / (Definition.HealthModifier ^ (MaximumLevel - Level)))
+    CurrentHealth.Value = MaxHealth()
 End Sub
 Public Sub Reset()
-    Dim Level As Long
-    Level = GetLevel(Expirience.Value)
-    CurrentAttack.Value     = CLng(Definition.Attack     / (Definition.AttackModifier     ^ (MaximumLevel - Level)))
-    CurrentDefense.Value    = CLng(Definition.Defense    / (Definition.DefenseModifier    ^ (MaximumLevel - Level)))
-    CurrentSpAttack.Value   = CLng(Definition.SpAttack   / (Definition.SpAttackModifier   ^ (MaximumLevel - Level)))
-    CurrentSpDefense.Value  = CLng(Definition.SpDefense  / (Definition.SpDefenseModifier  ^ (MaximumLevel - Level)))
-    CurrentInitiative.Value = CLng(Definition.Initiative / (Definition.InitiativeModifier ^ (MaximumLevel - Level)))
+    CurrentAttack.Value     = MaxAttack()
+    CurrentDefense.Value    = MaxDefense()
+    CurrentSpAttack.Value   = MaxSpAttack()
+    CurrentSpDefense.Value  = MaxSpDefense()
+    CurrentInitiative.Value = MaxInitiative()
 End Sub
 
-Public Function GetLevel(Value As Long) As Long
+Public Function GetLevel() As Long
     Dim Lambda As stdLambda
     Set Lambda = stdLambda.Create(Definition.LevelFormula)
-    GetLevel = Lambda.Run(Value)
+    GetLevel = Lambda.Run(Expirience.Value)
 End Function
+
+Public Function MaxHealth()     As Long: MaxHealth     = CLng(Definition.Health     / (Definition.HealthModifier     ^ (MaximumLevel - GetLevel))) : End Function
+Public Function MaxAttack()     As Long: MaxAttack     = CLng(Definition.Attack     / (Definition.AttackModifier     ^ (MaximumLevel - GetLevel))) : End Function
+Public Function MaxDefense()    As Long: MaxDefense    = CLng(Definition.Defense    / (Definition.DefenseModifier    ^ (MaximumLevel - GetLevel))) : End Function
+Public Function MaxSpAttack()   As Long: MaxSpAttack   = CLng(Definition.SpAttack   / (Definition.SpAttackModifier   ^ (MaximumLevel - GetLevel))) : End Function
+Public Function MaxSpDefense()  As Long: MaxSpDefense  = CLng(Definition.SpDefense  / (Definition.SpDefenseModifier  ^ (MaximumLevel - GetLevel))) : End Function
+Public Function MaxInitiative() As Long: MaxInitiative = CLng(Definition.Initiative / (Definition.InitiativeModifier ^ (MaximumLevel - GetLevel))) : End Function
 
 Public Sub CheckHealth()
     Dim Level As Long
@@ -112,3 +116,7 @@ Public Sub CheckHealth()
         CurrentHealth.Value = CLng(Definition.Health / (Definition.HealthModifier ^ (MaximumLevel - Level)))
     End If
 End Sub
+
+Public Function Alive() As Boolean
+    Alive = CurrentHealth > 0
+End Function

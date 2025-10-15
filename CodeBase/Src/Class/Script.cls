@@ -11,94 +11,81 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
-Private Const CommandSeperator As String = vbCrLf
-Private Const ArgSeperator     As String = "; "
-Private       p_Number         As Long
-Private       p_Name           As String
-Private       p_Commands()     As String
+Private p_Number         As Long
+Private p_Name           As String
+Private p_Command        As VBGLCallable
+Private p_ArgDef()       As String
+Private p_Active         As Long
+Private p_Minute         As Long
 
-Public Property Let Number(n_Number       As Long)   : p_Number    = n_Number   : End Property
-Public Property Let Name(n_Name           As String) : p_Name      = n_Name     : End Property
-Public Property Let Commands(n_Commands() As String) : p_Commands  = n_Commands : End Property
+Public Property Let Number(ByVal n_Number       As Long)         : Let p_Number    = n_Number   : End Property
+Public Property Let Name(ByVal n_Name           As String)       : Let p_Name      = n_Name     : End Property
+Public Property Let Command(ByVal n_Command     As VBGLCallable) : Set p_Command   = n_Command  : End Property
+Public Property Let ArgDef(ByVal n_ArgDef       As Variant)      : Let p_ArgDef    = n_ArgDef   : End Property
+Public Property Let Active(ByVal n_Active       As Long)         : Let p_Active    = n_Active   : End Property
+Public Property Let Minute(ByVal n_Minute       As Long)         : Let p_Minute    = n_Minute   : End Property
 
-Public Property Get Number()              As Long    : Number      = p_Number   : End Property
-Public Property Get Name()                As String  : Name        = p_Name     : End Property
-Public Property Get Commands()            As String(): Commands    = p_Commands : End Property
+
+Public Property Get Number()              As Long                : Let Number      = p_Number   : End Property
+Public Property Get Name()                As String              : Let Name        = p_Name     : End Property
+Public Property Get Command()             As VBGLCallable        : Set Command     = p_Command  : End Property
+Public Property Get ArgDef()              As Variant             : Let ArgDef      = p_ArgDef   : End Property
+Public Property Get Active()              As Long                : Let Active      = p_Active   : End Property
+Public Property Get Minute()              As Long                : Let Minute      = p_Minute   : End Property
 
 
 Public Function Create(Rng As Range) As Script
     Dim Temp() As String
-    Temp = Split(Rng.Offset(0, 2).Value, CommandSeperator)
+    Temp = Split(Rng.Offset(0, 1).Value, ".")
     Set Create = New Script
-    With Script
+    With Create
         .Number   = Rng.Offset(0, 0).Value
         .Name     = Rng.Offset(0, 1).Value
-        .Commands = Temp
+        .Command = CreateCommand(Rng.Offset(0, 2).Value)
+        .ArgDef   = CreateArgDef(Rng.Offset(0, 3).Value)
+        .Active   = Rng.Offset(0, 4).Value
+        .Minute   = Rng.Offset(0, 5).Value
     End With
 End Function
 
-Public Function Run(Arguments As Variant) As Variant
+Public Function Run(ParamArray Arguments() As Variant) As Variant
+    Dim Temp() As Variant
+    Temp = Arguments
+    Call VBGLAssign(Run, RunArr(Temp))
+End Function
+
+Public Function RunArr(Arguments() As Variant) As Variant
+    Call VBGLAssign(RunArr, Command.HandleArr(Arguments))
+End Function
+
+Private Function CreateCommand(ByVal Text As String) As VBGLCallable
+    Dim Obj As Object
     Dim i As Long
-    Dim Arguments() As Variant
-    For i = 0 To ArraySize(Commands)
-        Arguments = GetProcedureArguments(Commands(i))
-        If RunApplication(ReturnVariable, GetProcedureName(Commands(i)), Arguments) = False Then Exit Function
+    Dim Args() As String
+    Args = Split(Text, ", ")
+    If Args(0) <> "Nothing" Then Set Obj = Nothing ' Currently only RunApplication
+    Set CreateCommand = VBGLCallable.Create(Obj, Args(1), CallTypee(Args(2)), CLng(Args(3)))
+End Function
+
+Private Function CreateArgDef(ByVal Text As String) As String()
+    Dim Texts()     As String : Texts = Split(Text, vbCrLf)
+    Dim ReturnArr() As String
+    Dim i As Long, j As Long
+    For i = 0 To USize(Texts)
+        Dim Types() As String
+        Types = Split(Texts(i), ", ")
+        For j = 0 To USize(Types)
+            Call VBGLAdd(ReturnArr, Types(j))
+        Next j
     Next i
-    Run = ReturnVariable
+    CreateArgDef = ReturnArr
 End Function
 
-Private Function RunApplication(ReturnVariable As Variant, Name As String, Arguments() As Variant) As Boolean
-    On Error GoTo Error
-    If IsMissing(Arguments) Then
-        ReturnVariable = Application.Run(Name)
-    Else
-        Select Case ArraySize(Arguments)
-            Case 00:   ReturnVariable = Application.Run(Name, Arguments(0))
-            Case 01:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1))
-            Case 02:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2))
-            Case 03:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3))
-            Case 04:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4))
-            Case 05:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5))
-            Case 06:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6))
-            Case 07:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7))
-            Case 08:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8))
-            Case 09:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9))
-            Case 10:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10))
-            Case 11:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11))
-            Case 12:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12))
-            Case 13:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13))
-            Case 14:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14))
-            Case 15:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15))
-            Case 16:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16))
-            Case 17:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17))
-            Case 18:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18))
-            Case 19:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19))
-            Case 20:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20))
-            Case 21:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21))
-            Case 22:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22))
-            Case 23:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22), Arguments(23))
-            Case 24:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22), Arguments(23), Arguments(24))
-            Case 25:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22), Arguments(23), Arguments(24), Arguments(25))
-            Case 26:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22), Arguments(23), Arguments(24), Arguments(25), Arguments(26))
-            Case 27:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22), Arguments(23), Arguments(24), Arguments(25), Arguments(26), Arguments(27))
-            Case 28:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22), Arguments(23), Arguments(24), Arguments(25), Arguments(26), Arguments(27), Arguments(28))
-            Case 29:   ReturnVariable = Application.Run(Name, Arguments(0), Arguments(1), Arguments(2), Arguments(3), Arguments(4), Arguments(5), Arguments(6), Arguments(7), Arguments(8), Arguments(9), Arguments(10), Arguments(11), Arguments(12), Arguments(13), Arguments(14), Arguments(15), Arguments(16), Arguments(17), Arguments(18), Arguments(19), Arguments(20), Arguments(21), Arguments(22), Arguments(23), Arguments(24), Arguments(25), Arguments(26), Arguments(27), Arguments(28), Arguments(29))
-            Case Else
-            MsgBox("Too many Arguments: " & ArraySize(Arguments))
-        End Select
-    End If
-    If IsError(ReturnVariable) Then
-        GoTo Error:
-    Else
-        RunApplication = True
-        Exit Function
-    End If
-    Error:
-    MsgBox("Could not run Procedure. Procedure might not exist: " & Name)
-End Function
-
-Public Function GetProcedureArguments(Text As String) As Variant()
-    Dim Temp() As String
-    Temp = Split(GetParanthesesText(Text), ArgSeperator)
-    GetProcedureArguments = ArrayConvertVariant(Temp)
+Private Function CallTypee(ByVal Text As String) As vbCallType
+    Select Case Text
+        Case vbMethod : CallTypee = vbCallType.vbMethod
+        Case vbLet    : CallTypee = vbCallType.vbLet
+        Case vbGet    : CallTypee = vbCallType.vbGet
+        Case vbSet    : CallTypee = vbCallType.vbSet
+    End Select
 End Function

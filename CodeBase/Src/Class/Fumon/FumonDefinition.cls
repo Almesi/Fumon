@@ -32,49 +32,61 @@ Private p_SpAttackModifier   As Double
 Private p_SpDefenseModifier  As Double
 Private p_InitiativeModifier As Double
 Private p_LevelFormula       As String
-Private p_TextureDefinition  As TextureDefinition
+Private p_SubTexture         As VBGLSubTexture
+Private p_Attacks()          As Attack
+Private p_LearnAttacks()     As Long
 
-Public Property Let Number(n_Number                          As Long)              : p_Number                = n_Number             : End Property
-Public Property Let Name(n_Name                              As String)            : p_Name                  = n_Name               : End Property
-Public Property Let EvolveTo(n_EvolveTo                      As String)            : p_EvolveTo              = n_EvolveTo           : End Property
-Public Property Let EvolveCondition(n_EvolveCondition        As String)            : p_EvolveCondition       = n_EvolveCondition    : End Property
-Public Property Let Type1(n_Type1                            As String)            : p_Type1                 = n_Type1              : End Property
-Public Property Let Type2(n_Type2                            As String)            : p_Type2                 = n_Type2              : End Property
-Public Property Let Health(n_Health                          As Long)              : p_Health                = n_Health             : End Property
-Public Property Let Attack(n_Attack                          As Long)              : p_Attack                = n_Attack             : End Property
-Public Property Let Defense(n_Defense                        As Long)              : p_Defense               = n_Defense            : End Property
-Public Property Let SpAttack(n_SpAttack                      As Long)              : p_SpAttack              = n_SpAttack           : End Property
-Public Property Let SpDefense(n_SpDefense                    As Long)              : p_SpDefense             = n_SpDefense          : End Property
-Public Property Let Initiative(n_Initiative                  As Long)              : p_Initiative            = n_Initiative         : End Property
-Public Property Let HealthModifier(n_HealthModifier          As Double)            : p_HealthModifier        = n_HealthModifier     : End Property
-Public Property Let AttackModifier(n_AttackModifier          As Double)            : p_AttackModifier        = n_AttackModifier     : End Property
-Public Property Let DefenseModifier(n_DefenseModifier        As Double)            : p_DefenseModifier       = n_DefenseModifier    : End Property
-Public Property Let SpAttackModifier(n_SpAttackModifier      As Double)            : p_SpAttackModifier      = n_SpAttackModifier   : End Property
-Public Property Let SpDefenseModifier(n_SpDefenseModifier    As Double)            : p_SpDefenseModifier     = n_SpDefenseModifier  : End Property
-Public Property Let InitiativeModifier(n_InitiativeModifier  As Double)            : p_InitiativeModifier    = n_InitiativeModifier : End Property
-Public Property Let LevelFormula(n_LevelFormula              As String)            : p_LevelFormula          = n_LevelFormula       : End Property
-Public Property Let TextureDefinition(n_TextureDefinition    As TextureDefinition) : Set p_TextureDefinition = n_TextureDefinition  : End Property
+Public Property Let Number(n_Number                            As Long)              : Let p_Number                = n_Number             : End Property
+Public Property Let Name(n_Name                                As String)            : Let p_Name                  = n_Name               : End Property
+Public Property Let EvolveTo(n_EvolveTo                        As String)            : Let p_EvolveTo              = n_EvolveTo           : End Property
+Public Property Let EvolveCondition(n_EvolveCondition          As String)            : Let p_EvolveCondition       = n_EvolveCondition    : End Property
+Public Property Let Type1(n_Type1                              As String)            : Let p_Type1                 = n_Type1              : End Property
+Public Property Let Type2(n_Type2                              As String)            : Let p_Type2                 = n_Type2              : End Property
+Public Property Let Health(n_Health                            As Long)              : Let p_Health                = n_Health             : End Property
+Public Property Let Attack(n_Attack                            As Long)              : Let p_Attack                = n_Attack             : End Property
+Public Property Let Defense(n_Defense                          As Long)              : Let p_Defense               = n_Defense            : End Property
+Public Property Let SpAttack(n_SpAttack                        As Long)              : Let p_SpAttack              = n_SpAttack           : End Property
+Public Property Let SpDefense(n_SpDefense                      As Long)              : Let p_SpDefense             = n_SpDefense          : End Property
+Public Property Let Initiative(n_Initiative                    As Long)              : Let p_Initiative            = n_Initiative         : End Property
+Public Property Let HealthModifier(n_HealthModifier            As Double)            : Let p_HealthModifier        = n_HealthModifier     : End Property
+Public Property Let AttackModifier(n_AttackModifier            As Double)            : Let p_AttackModifier        = n_AttackModifier     : End Property
+Public Property Let DefenseModifier(n_DefenseModifier          As Double)            : Let p_DefenseModifier       = n_DefenseModifier    : End Property
+Public Property Let SpAttackModifier(n_SpAttackModifier        As Double)            : Let p_SpAttackModifier      = n_SpAttackModifier   : End Property
+Public Property Let SpDefenseModifier(n_SpDefenseModifier      As Double)            : Let p_SpDefenseModifier     = n_SpDefenseModifier  : End Property
+Public Property Let InitiativeModifier(n_InitiativeModifier    As Double)            : Let p_InitiativeModifier    = n_InitiativeModifier : End Property
+Public Property Let LevelFormula(n_LevelFormula                As String)            : Let p_LevelFormula          = n_LevelFormula       : End Property
+Public Property Let SubTexture(n_SubTexture                    As VBGLSubTexture)    : Set p_SubTexture            = n_SubTexture         : End Property
+Public Property Let Attacks(n_Attacks                          As Variant)           : Let p_Attacks               = n_Attacks            : End Property
+Public Property Let LearnAttacks(n_LearnAttacks                As Variant)           : Let p_LearnAttacks          = n_LearnAttacks       : End Property
 
-Public Property Get Number()                                 As Long               : Number                  = p_Number             : End Property
-Public Property Get Name()                                   As String             : Name                    = p_Name               : End Property
-Public Property Get EvolveTo()                               As String             : EvolveTo                = p_EvolveTo           : End Property
-Public Property Get EvolveCondition()                        As String             : EvolveCondition         = p_EvolveCondition    : End Property
-Public Property Get Type1()                                  As String             : Type1                   = p_Type1              : End Property
-Public Property Get Type2()                                  As String             : Type2                   = p_Type2              : End Property
-Public Property Get Health()                                 As Long               : Health                  = p_Health             : End Property
-Public Property Get Attack()                                 As Long               : Attack                  = p_Attack             : End Property
-Public Property Get Defense()                                As Long               : Defense                 = p_Defense            : End Property
-Public Property Get SpAttack()                               As Long               : SpAttack                = p_SpAttack           : End Property
-Public Property Get SpDefense()                              As Long               : SpDefense               = p_SpDefense          : End Property
-Public Property Get Initiative()                             As Long               : Initiative              = p_Initiative         : End Property
-Public Property Get HealthModifier()                         As Double             : HealthModifier          = p_HealthModifier     : End Property
-Public Property Get AttackModifier()                         As Double             : AttackModifier          = p_AttackModifier     : End Property
-Public Property Get DefenseModifier()                        As Double             : DefenseModifier         = p_DefenseModifier    : End Property
-Public Property Get SpAttackModifier()                       As Double             : SpAttackModifier        = p_SpAttackModifier   : End Property
-Public Property Get SpDefenseModifier()                      As Double             : SpDefenseModifier       = p_SpDefenseModifier  : End Property
-Public Property Get InitiativeModifier()                     As Double             : InitiativeModifier      = p_InitiativeModifier : End Property
-Public Property Get LevelFormula()                           As String             : LevelFormula            = p_LevelFormula       : End Property
-Public Property Get TextureDefinition()                      As TextureDefinition  : Set TextureDefinition   = p_TextureDefinition  : End Property
+Public Property Let AttackDef(Index As Long, n_Attack          As Attack)            : Let p_Attacks(Index)        = n_Attack             : End Property
+Public Property Let LearnAttack(Index As Long, n_LearnAttack   As Long)              : Let p_LearnAttacks(Index)   = n_LearnAttack        : End Property
+
+Public Property Get Number()                                   As Long               : Let Number                  = p_Number             : End Property
+Public Property Get Name()                                     As String             : Let Name                    = p_Name               : End Property
+Public Property Get EvolveTo()                                 As String             : Let EvolveTo                = p_EvolveTo           : End Property
+Public Property Get EvolveCondition()                          As String             : Let EvolveCondition         = p_EvolveCondition    : End Property
+Public Property Get Type1()                                    As String             : Let Type1                   = p_Type1              : End Property
+Public Property Get Type2()                                    As String             : Let Type2                   = p_Type2              : End Property
+Public Property Get Health()                                   As Long               : Let Health                  = p_Health             : End Property
+Public Property Get Attack()                                   As Long               : Let Attack                  = p_Attack             : End Property
+Public Property Get Defense()                                  As Long               : Let Defense                 = p_Defense            : End Property
+Public Property Get SpAttack()                                 As Long               : Let SpAttack                = p_SpAttack           : End Property
+Public Property Get SpDefense()                                As Long               : Let SpDefense               = p_SpDefense          : End Property
+Public Property Get Initiative()                               As Long               : Let Initiative              = p_Initiative         : End Property
+Public Property Get HealthModifier()                           As Double             : Let HealthModifier          = p_HealthModifier     : End Property
+Public Property Get AttackModifier()                           As Double             : Let AttackModifier          = p_AttackModifier     : End Property
+Public Property Get DefenseModifier()                          As Double             : Let DefenseModifier         = p_DefenseModifier    : End Property
+Public Property Get SpAttackModifier()                         As Double             : Let SpAttackModifier        = p_SpAttackModifier   : End Property
+Public Property Get SpDefenseModifier()                        As Double             : Let SpDefenseModifier       = p_SpDefenseModifier  : End Property
+Public Property Get InitiativeModifier()                       As Double             : Let InitiativeModifier      = p_InitiativeModifier : End Property
+Public Property Get LevelFormula()                             As String             : Let LevelFormula            = p_LevelFormula       : End Property
+Public Property Get SubTexture()                               As VBGLSubTexture     : Set SubTexture              = p_SubTexture         : End Property
+Public Property Get Attacks()                                  As Variant            : Let Attacks                 = n_Attacks            : End Property
+Public Property Get LearnAttacks()                             As Variant            : Let LearnAttacks            = n_LearnAttacks       : End Property
+
+Public Property Get AttackDef(Index As Long)                   As Attack             : Set Attack                  = p_Attacks(Index)     : End Property
+Public Property Get LearnAttack(Index As Long)                 As Long               : Let LearnAttack             = p_LearnAttacks(Index): End Property
 
 
 Public Function Create(Rng As Range) As FumonDefinition
@@ -99,6 +111,22 @@ Public Function Create(Rng As Range) As FumonDefinition
         .SpDefenseModifier  = Rng.Offset(0, 16).Value
         .InitiativeModifier = Rng.Offset(0, 17).Value
         .LevelFormula       = Rng.Offset(0, 18).Value
-        .TextureDefinition  = FumonGame.TextureDefinition.Create(Rng.Offset(0, 19).Value, Rng.Offset(0, 20).Value, FumonGame.FactoryServer.GameMap.Folder.Value & "\Fumon.png")
+        .SubTexture         = FactoryServer.GetTexture("Fumons").SubTexture(.Number)
+        Call .GetAttacks(Rng.Offset(0, 19).Value)
     End With
 End Function
+
+Public Sub GetAttacks(ByVal Definition As String)
+    Dim i As Long
+    Dim AttackDefinitions() As String
+    AttackDefinitions = Split(Definition, ", ")
+    For i = 0 To USize(AttackDefinitions)
+        Dim Text           As String : Text           = AttackDefinitions(i)
+        Dim Point          As Long   : Point          = InStr(1, Text, "(")
+        Dim AttackIndex    As Long   : AttackIndex    = Clng(VBGLMidP(Text, 1, Point - 1))
+        Dim LearnAttackDef As Long   : LearnAttackDef = CLng(VBGLMidP(Text, Point + 1, Len(Text) - 1))
+
+        Call VBGLAdd(p_Attacks, FactoryServer.Attack(AttackIndex))
+        Call VBGLAdd(p_LearnAttacks, LearnAttackDef)
+    Next i
+End Sub
