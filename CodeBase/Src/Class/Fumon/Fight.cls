@@ -44,18 +44,15 @@ Public Property Get Winner()                      As Range : Set Winner         
 Public Property Get p1Finished()                  As Range : Set p1Finished      = p_p1Finished    : End Property
 Public Property Get p2Finished()                  As Range : Set p2Finished      = p_p2Finished    : End Property
 
-Public Function Create(ByVal Player1 As IPlayer, ByVal Player2 As IPlayer) As Fight
+Public Function Create(ByVal Start As Range, ByVal Player1 As IFighter, ByVal Player2 As IFighter) As Fight
     Dim i As Long
-    Dim WS As Worksheet
-    Set WS = FactoryServer.Workbook.Worksheets("Fights")
     Dim Rng As Range
-    
-    Set Rng = CheckActiveFight(WS.Range("A1"), Player1.Number, Player2.Number)
-    If IsNothing(Rng) Then Set Rng = WS.Range("A1")
 
-    Do Until Rng.Offset(i, 0).Formula = Empty
-        i = i + 1
-    Loop
+    Dim p1Player As Long : p1Player = Player1.PlayerBase.Number.Value
+    Dim p2Player As Long : p2Player = Player2.PlayerBase.Number.Value
+    
+    Set Rng = GetActiveFight(Start, p1Player, p2Player)
+
     Set Create = New Fight
     With Create
         .p1                  = Rng.Offset(i, 0)
@@ -65,10 +62,10 @@ Public Function Create(ByVal Player1 As IPlayer, ByVal Player2 As IPlayer) As Fi
         .Winner              = Rng.Offset(i, 4)
         .p1Finished          = Rng.Offset(i, 5)
         .p2Finished          = Rng.Offset(i, 6)
-        .p1.Value            = Player1.Number.Value
-        .p2.Value            = Player2.Number.Value
-        .mon1.Value          = Player1.Fumons.FirstAlive.Definition.Number
-        .mon2.Value          = Player2.Fumons.FirstAlive.Definition.Number
+        .p1.Value            = p1Player
+        .p2.Value            = p2Player
+        .mon1.Value          = Player1.FightBase.Fumons.FirstAlive.Definition.Number
+        .mon2.Value          = Player2.FightBase.Fumons.FirstAlive.Definition.Number
         .p1Finished.Value    = 0
         .p2Finished.Value    = 0
         Call .UpdateTimer(Player1, 1)
@@ -76,21 +73,21 @@ Public Function Create(ByVal Player1 As IPlayer, ByVal Player2 As IPlayer) As Fi
     End With
 End Function
 
-Public Sub Fight(ByVal FightCaller As IPlayer, ByRef WinnerPlayer As IPlayer, ByRef LoserPlayer As IPlayer)
+Public Sub Fight(ByVal FightCaller As IFighter, ByRef WinnerPlayer As IFighter, ByRef LoserPlayer As IFighter)
     Call AddRenderObject(FightRenderObject)
     Do Until (Winner.Formula <> Empty) Or (p1.Formula = Empty)
-        Call UpdateFight(Me, p1Player, p2Player, p1Fumon, p2Fumon)
+        Call UpdateFight(Me)
         Call GetMoves(FightCaller)
 
         If p1Fumon.CurrentInitiative.Value > p2Fumon.CurrentInitiative.Value Then
-            Call DoRound(p1Player, p2Player)
+            Call DoRound(p1Fighter, p2Fighter)
         ElseIf p1Fumon.CurrentInitiative.Value < p2Fumon.CurrentInitiative.Value Then
-            Call DoRound(p2Player, p1Player)
+            Call DoRound(p2Fighter, p1Fighter)
         Else
             If RandomNumber() > 50 Then
-                Call DoRound(p1Player, p2Player)
+                Call DoRound(p1Fighter, p2Fighter)
             Else
-                Call DoRound(p2Player, p1Player)
+                Call DoRound(p2Fighter, p1Fighter)
             End If
         End If
         p1Finished.Value = 0
@@ -105,26 +102,26 @@ Public Sub Fight(ByVal FightCaller As IPlayer, ByRef WinnerPlayer As IPlayer, By
     End If
 End Sub
 
-Public Function ImFinished(ByVal Caller As IPlayer) As Boolean
-    If Caller Is p1Player Then
+Public Function ImFinished(ByVal Caller As IFighter) As Boolean
+    If Caller Is p1Fighter Then
         ImFinished = p1Finished > 0
     Else
         ImFinished = p2Finished > 0
     End If
 End Function
 
-Public Function MyFumon(ByVal Player As IPlayer) As Fumon
-    If Player IS p1Player Then
+Public Function MyFumon(ByVal Player As IFighter) As Fumon
+    If Player IS p1Fighter Then
         Set MyFumon = p1Fumon
     Else
         Set MyFumon = p2Fumon
     End If
 End Function
 
-Public Sub UpdateTimer(ByVal Player As IPlayer, ByVal Timer1 As Single)
+Public Sub UpdateTimer(ByVal Player As IFighter, ByVal Timer1 As Single)
     Static RealTimer1 As Single
     Static RealTimer2 As Single
-    If Player Is p1Player Then
+    If Player Is p1Fighter Then
         RealTimer1 = Timer1
     Else
         RealTimer2 = Timer1
@@ -134,18 +131,18 @@ Public Sub UpdateTimer(ByVal Player As IPlayer, ByVal Timer1 As Single)
     Call FumonTime.VAO.Buffer.Update(VBGLData.CreateSingle(Temp))
 End Sub
 
-Private Sub DoRound(ByVal First As IPlayer, Second As IPlayer)
-    Dim p1Move  As FightMove : Let p1Move  = First.GetCurrentMove
-    Dim p2Move  As FightMove : Let p2Move  = Second.GetCurrentMove
-    Dim p1Value As Variant   : Set p1Value = First.GetCurrentValue(Me)
-    Dim p2Value As Variant   : Set p2Value = Second.GetCurrentValue(Me)
+Private Sub DoRound(ByVal First As IFighter, Second As IFighter)
+    Dim p1Move  As FightMove : Let p1Move  = First.FightBase.GetCurrentMove
+    Dim p2Move  As FightMove : Let p2Move  = Second.FightBase.GetCurrentMove
+    Dim p1Value As Variant   : Set p1Value = First.FightBase.GetCurrentValue(Me, First)
+    Dim p2Value As Variant   : Set p2Value = Second.FightBase.GetCurrentValue(Me, Second)
 
     Call DoAction(First, Second, p1Value, p1Move)
     Call DoAction(Second, First, p2Value, p2Move)
 End Sub
 
-Private Sub DoAction(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal CurrentValue As Variant, ByVal CurrentMove As Long)
-    If User Is p1Player Then
+Private Sub DoAction(ByVal User As IFighter, ByVal Victim As IFighter, ByVal CurrentValue As Variant, ByVal CurrentMove As Long)
+    If User Is p1Fighter Then
         p1Finished.Value = 1
     Else
         p2Finished.Value = 1
@@ -156,7 +153,7 @@ Private Sub DoAction(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal Curre
             Set TempAttack = CurrentValue
             Call Attack(User, Victim, TempAttack)
         Case FightMove.FightMoveFlee
-            Call Flee()
+            Call Flee(User, Victim)
         Case FightMove.FightMoveItem
             Dim TempUseItem As Item
             Set TempUseItem = CurrentValue
@@ -171,62 +168,64 @@ End Sub
 
 ' Check if there already exists a fight.
 ' Function is used for the other player to create the object
-Private Function CheckActiveFight(ByVal Rng As Range, ByVal Player1Index As Long, ByVal Player2Index As Long) As Range
+Private Function GetActiveFight(ByVal Rng As Range, ByVal Player1Index As Long, ByVal Player2Index As Long) As Range
     Dim i As Long
     Do Until Rng.Offset(i, 0).Formula = Empty
         If Rng.Offset(i, 1).Value = Player1Index And Rng.Offset(i, 2).Value = Player2Index Then
-            Set CheckActiveFight = Rng.Offset(i, 0)
+            Exit Do
         End If
         i = i + 1
     Loop
+    Set GetActiveFight = Rng.Offset(i, 0)
 End Function
 
-Private Function Loser() As IPlayer
+Private Function Loser() As IFighter
     If Winner.Formula <> Empty Then
         If p1.Value = Winner.Value Then
-            Set Loser = p2Player
+            Set Loser = p2Fighter
         Else
-            Set Loser = p1Player
+            Set Loser = p1Fighter
         End If
     End IF
 End Function
 
 Private Sub CheckWinner()
     If Winner.Value <> Empty Then Exit Sub
-    If IsNothing(p1Player.Fumons.FirstAlive) Then
-        Winner.Value = p2Player.Number.Value
+    If IsNothing(p1Fighter.FightBase.Fumons.FirstAlive) Then
+        Winner.Value = p2Fighter.PlayerBase.Number.Value
     End If
-    If IsNothing(p2Player.Fumons.FirstAlive) Then
-        Winner.Value = p1Player.Number.Value
+    If IsNothing(p2Fighter.FightBase.Fumons.FirstAlive) Then
+        Winner.Value = p1Fighter.PlayerBase.Number.Value
     End If
 End Sub
 
-Private Sub ChangeFumon(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal NewMon As Fumon)
+Private Sub ChangeFumon(ByVal User As IFighter, ByVal Victim As IFighter, ByVal NewMon As Fumon)
     Dim Index As Long
-    Index = User.Fumons.GetFumonIndex(NewMon)
-    If User Is p1Player Then
-        Call User.Fumons.Swap(mon1.Value, Index)
+    Index = User.FightBase.Fumons.GetFumonIndex(NewMon)
+    If User Is p1Fighter Then
+        Call User.FightBase.Fumons.Swap(mon1.Value, Index)
         mon1.Value = Index
     Else
-        Call User.Fumons.Swap(mon2.Value, Index)
+        Call User.FightBase.Fumons.Swap(mon2.Value, Index)
         mon2.Value = Index
     End If
 End Sub
 
-Private Sub Attack(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal UsedAttack As Attack)
+Private Sub Attack(ByVal User As IFighter, ByVal Victim As IFighter, ByVal UsedAttack As Attack)
     Call UsedAttack.Use(GetFumon(User), GetFumon(Victim))
 End Sub
 
-Private Sub UseItem(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal UsedItem As Item)
+Private Sub UseItem(ByVal User As IFighter, ByVal Victim As IFighter, ByVal UsedItem As Item)
     Call UsedItem.Use()
 End Sub
 
-Private Function Flee() As IPlayer
-    If TypeName(OtherPlayerObject()) = "ComPlayer" Or TypeName(OtherPlayerObject()) = "HumanPlayer" Then
+Private Function Flee(ByVal User As IFighter, ByVal Victim As IFighter) As IFighter
+    If TypeName(User) = "HumanPlayer" And TypeName(Victim) = "WildPlayer" Then
+        Set Flee = User
+    Else
         MsgBox("Cannot flee from a trainer battle")
-        Exit Sub
+        Exit Function
     End If
-    Set Flee = OtherPlayerObject()
 End Function
 
 
@@ -240,21 +239,21 @@ Private Sub Class_Terminate()
     If Not p_Winner        Is Nothing Then p_Winner.Clear
 End Sub
 
-Private Function p1Player() As IPlayer
-    Set p1Player = MeServer.Player(p1.Value)
+Public Function p1Fighter() As IFighter
+    Set p1Fighter = MeServer.Player(p1.Value)
 End Function
-Private Function p2Player() As IPlayer
-    Set p2Player = MeServer.Player(p2.Value)
+Public Function p2Fighter() As IFighter
+    Set p2Fighter = MeServer.Player(p2.Value)
 End Function
-Private Function p1Fumon() As Fumon
-    Set p1Fumon = p1Player.Fumons.Fumon(mon1.Value)
+Public Function p1Fumon() As Fumon
+    Set p1Fumon = p1Fighter.FightBase.Fumons.Fumon(mon1.Value)
 End Function
-Private Function p2Fumon() As Fumon
-    Set p2Fumon = p2Player.Fumons.Fumon(mon2.Value)
+Public Function p2Fumon() As Fumon
+    Set p2Fumon = p2Fighter.FightBase.Fumons.Fumon(mon2.Value)
 End Function
 
-Private Function GetFumon(ByVal Player As IPlayer)
-    If Player Is p1Player Then
+Private Function GetFumon(ByVal Player As IFighter)
+    If Player Is p1Fighter Then
         Set GetFumon = p1Fumon
     Else
         Set GetFumon = p2Fumon
@@ -265,32 +264,32 @@ Private Function RandomNumber() As Long
     RandomNumber = Int((100 - 0 + 1) * Rnd + 0)
 End Function
 
-Private Sub GetMoves(ByVal FightCaller As IPlayer)
-    If FightCaller Is p1Player Then
-        Call p1Player.DoAI(Me, p2Player)
-        Call GetMovesHelp(p1Player, p2Player)
+Private Sub GetMoves(ByVal FightCaller As IFighter)
+    If FightCaller Is p1Fighter Then
+        Call p1Fighter.DoAI(Me, p2Fighter)
+        Call GetMovesHelp(p1Fighter, p2Fighter)
     Else
-        Call GetMovesHelp(p2Player, p1Player)
-        Call p2Player.DoAI(Me, p1Player)
+        Call GetMovesHelp(p2Fighter, p1Fighter)
+        Call p2Fighter.DoAI(Me, p1Fighter)
     End If
 End Sub
 
-Private Function GetFinished(ByVal Player As IPlayer) As Range
-    If Player = p1Player Then
+Private Function GetFinished(ByVal Player As IFighter) As Range
+    If Player = p1Fighter Then
         Set GetFinished = p1Finished
     Else
         Set GetFinished = p2Finished
     End If
 End Function
 
-Private Sub GetMovesHelp(ByVal MyPlayer As IPlayer, ByVal OtherPlayer As IPlayer)
+Private Sub GetMovesHelp(ByVal MyPlayer As IFighter, ByVal OtherPlayer As IFighter)
     If TypeName(OtherPlayer) = "HumanPlayer" Then
         Dim StartTime As Single
         StartTime = Timer
         Dim Diff As Single
         Do Until Diff > 60
             Diff = Timer - StartTime
-            If OtherPlayer.GetCurrentMove <> FightMove.FightMoveNothing Then
+            If OtherPlayer.FightBase.GetCurrentMove <> FightMove.FightMoveNothing Then
                 Exit Do
             End If
             Call UpdateTimer(Me, Diff / 60)

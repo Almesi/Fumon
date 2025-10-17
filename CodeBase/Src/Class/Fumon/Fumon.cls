@@ -52,7 +52,7 @@ Public Property Get Attacks()                      As Attacks          : Set Att
 Public Function Create(Rng As Range) As Fumon
     Set Create = New Fumon
     With Create
-        .Definition        = FactoryServer.FumonDefinitions(Rng.Offset(0, 0).Value)
+        .Definition        = FactoryServer.FumonDefinition(Rng.Offset(0, 0).Value)
         .Expirience        = Rng.Offset(0, 1)
         .CurrentHealth     = Rng.Offset(0, 2)
         .CurrentAttack     = Rng.Offset(0, 3)
@@ -60,7 +60,9 @@ Public Function Create(Rng As Range) As Fumon
         .CurrentSpAttack   = Rng.Offset(0, 5)
         .CurrentSpDefense  = Rng.Offset(0, 6)
         .CurrentInitiative = Rng.Offset(0, 7)
-        .Attacks           = FactoryAttacks.Create(Rng.Offset(0, 8))
+        Dim Temp As Attacks
+        Set Temp = New Attacks
+        .Attacks           = Temp.Create(Rng.Offset(0, 8))
         .HealAndReset
     End With
 End Function

@@ -26,19 +26,19 @@ Public Function Create(Rng As Range) As Tile
     With Create
         .Range      = Rng
         Index = CLng(.ExtractPoint("Tiles"))
-        If Index <> -1 Then .Tile       = FactoryServer.Tiles(Index)
+        If Index <> -1 Then .Tile = FactoryServer.Tile(Index)
     End With
 End Function
 
 Public Function Player() As IPlayer
     Dim Index As Long
     Index = CLng(ExtractPoint("Players"))
-    If Index <> -1 Then Set Player = FactoryServer.Players(Index)
+    If Index <> -1 Then Set Player = FactoryServer.Player(Index)
 End Function
 Public Function Script() As Script
     Dim Index As Long
     Index = CLng(ExtractPoint("Scripts"))
-    If Index <> -1 Then Script = FactoryServer.Scripts(Index)
+    If Index <> -1 Then Script = FactoryServer.Script(Index)
 End Function
 
 Public Sub SetMapPoint(Optional ByVal Tile As String = "KEEP", Optional ByVal Player As String = "KEEP", Optional ByVal Script As String = "KEEP")
@@ -76,6 +76,5 @@ Public Function TileInformation(ByVal Name As String) As Variant
         Case "TileType"   : Call VBGLAssign(TileInformation, Tile.TileType)
         Case "Speed"      : Call VBGLAssign(TileInformation, Tile.Speed)
         Case "Depth"      : Call VBGLAssign(TileInformation, Tile.Depth)
-        Case "SubTexture" : Call VBGLAssign(TileInformation, Tile.SubTexture)
     End Select
 End Function

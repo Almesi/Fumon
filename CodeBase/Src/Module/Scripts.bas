@@ -43,20 +43,6 @@ Public Function GetPlayer(ByVal Index As Long) As IPlayer
     Set GetPlayer = MeServer.Player(Index)
 End Function
 
-Public Function CallScript(Text As String)
-    Dim Scripts() As String
-    Dim Arguments() As String
-    Dim ScriptName As String
-    Scripts = Split(Text, "; ")
-    For i = 0 Ubound(Scripts)
-        Arguments = Split(GetParanthesesText(Scripts(i)), ", ")
-        ScriptName = GetProcedureName(Scripts(i))
-        If IsNumeric(ScriptName) Then
-            CallScript = MeServer.Script(CLng(ScriptName)).Run(Arguments)
-        End If
-    Next i
-End Function
-
 Public Function MakeArgumentArr(ByVal Text As String) As Variant()
     Dim i As Long
     Dim Arr() As String

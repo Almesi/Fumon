@@ -64,10 +64,11 @@ End Function
 Public Function Create(ByVal Rng As Range) As Fumons
     Dim i As Long
     Set Create = New Fumons
+    Dim Temp As Fumon: Set Temp = New Fumon
     With Create
         For i = 0 To TotalFumons
-            If Rng.Offset(0, i * FactoryFumon.PropertyCount).Formula = "" Then Exit For
-            .Fumon(i) = FactoryFumon.Create(Rng.Offset(0, i * FactoryFumon.PropertyCount))
+            If Rng.Offset(0, i * Temp.PropertyCount).Formula = "" Then Exit For
+            .Fumon(i) = Temp.Create(Rng.Offset(0, i * Temp.PropertyCount))
             Call .Fumon(i).HealAndReset()
         Next i
     End With

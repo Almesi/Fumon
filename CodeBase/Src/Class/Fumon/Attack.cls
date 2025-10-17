@@ -18,7 +18,6 @@ Private p_Name               As String
 Private p_Func               As String
 Private p_Typee              As AttackType
 Private p_ElementTypee       As String
-Private p_SubTexture         As VBGLSubTexture
 
 Public Enum AttackType
     Health         = 0
@@ -34,7 +33,6 @@ Public Property Let Name(n_Name                           As String)            
 Public Property Let Func(n_Func                           As String)             : Let p_Func              = n_Func              : End Property
 Public Property Let Typee(n_Typee                         As AttackType)         : Let p_Typee             = n_Typee             : End Property
 Public Property Let ElementType(n_ElementTypee            As String)             : Let p_ElementTypee      = n_ElementTypee      : End Property
-Public Property Let SubTexture(n_SubTexture               As VBGLSubTexture)     : Set p_SubTexture        = n_SubTexture        : End Property
 
 Public Property Get PropertyCount()                       As Long                : Let PropertyCount       = p_PropertyCount     : End Property
 
@@ -43,7 +41,6 @@ Public Property Get Name()                                As String             
 Public Property Get Func()                                As String              : Let Func                = p_Func              : End Property
 Public Property Get Typee()                               As AttackType          : Let Typee               = p_Typee             : End Property
 Public Property Get ElementType()                         As String              : Let ElementType         = p_ElementTypee      : End Property
-Public Property Get SubTexture()                          As VBGLSubTexture      : Set SubTexture          = p_SubTexture        : End Property
 
 
 Public Function Create(ByVal Rng As Range) As Attack
@@ -54,7 +51,6 @@ Public Function Create(ByVal Rng As Range) As Attack
         .Func              = Rng.Offset(0, 2).Value
         .Typee             = GetType(Rng.Offset(0, 3).Value)
         .ElementType       = Rng.Offset(0, 4).Value
-        .SubTexture        = FactoryServer.GetTexture("Attacks").SubTexture(Number)
     End With
 End Function
 

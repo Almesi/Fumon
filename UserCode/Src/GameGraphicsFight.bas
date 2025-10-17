@@ -13,6 +13,8 @@ Private FumonHealths As VBGLMesh
 Public  FumonTime    As VBGLMesh
 
 Public Sub SetUpFightGraphics()
+    Dim Temp As Fumon
+    Set Temp = MeFighter.FightBase.Fumons.Fumon(0)
     FightRenderObject.Inputt = CreateInput()
 
     Set FumonName1   = GetFumonName1()
@@ -20,8 +22,8 @@ Public Sub SetUpFightGraphics()
     Set Dialog       = GetDialog()
     Set History      = GetHistory()
     Set Buttons      = GetButtons()
-    Set FumonSprites = GetFumonSprites(MePlayer.Fumons.Fumon(0), MePlayer.Fumons.Fumon(0))
-    Set FumonHealths = GetFumonHealths(MePlayer.Fumons.Fumon(0), MePlayer.Fumons.Fumon(0))
+    Set FumonSprites = GetFumonSprites(Temp, Temp)
+    Set FumonHealths = GetFumonHealths(Temp, Temp)
     Set FumonTime    = GetFumonTimer(1, 1)
     Call FightRenderObject.AddDrawable(Dialog)
     Call FightRenderObject.AddDrawable(History)
@@ -33,12 +35,14 @@ Public Sub SetUpFightGraphics()
     Call FightRenderObject.AddDrawable(FumonTime)
 End Sub
 
-Public Sub UpdateFight(ByVal MyFight As Fight, ByVal Player1 As IPlayer, ByVal Player2 As IPlayer, ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon, Optional DialogText As String = Empty, Optional CurrentMove As String = Empty, Optional SelectedButton As Long = 0)
+Public Sub UpdateFight(ByVal MyFight As Fight, Optional DialogText As String = Empty, Optional CurrentMove As String = Empty, Optional SelectedButton As Long = 0)
+    Dim Fumon1 As Fumon : Set Fumon1 = MyFight.p1Fumon
+    Dim Fumon2 As Fumon : Set Fumon2 = MyFight.p2Fumon
     FumonName1.Font(0).Text = Fumon1.Definition.Name
     FumonName2.Font(0).Text = Fumon2.Definition.Name
     Dialog.Font(0).Text     = DialogText
     Dim Text As String
-    Text = HistoryText(MyFight, Player1) & vbCrLf & HistoryText(MyFight, Player2)
+    Text = HistoryText(MyFight, MyFight.p1Fighter) & vbCrLf & HistoryText(MyFight, MyFight.p2Fighter)
     History.Font(0).Text = Text
 
     Call History.UpdateData()
@@ -54,13 +58,9 @@ Public Sub UpdateFight(ByVal MyFight As Fight, ByVal Player1 As IPlayer, ByVal P
     Color(1) = 1
     Buttons.Font(SelectedButton).FontColor = Color
     
-    Dim TempData() As Single
-    TempData = UpdateSprites(Fumon1, Fumon2)
-    Call FumonSprites.VAO.Buffer.Update(VBGLData.CreateSingle(TempData))
-    TempData = UpdateHealthBars(Fumon1, Fumon2)
-    Call FumonHealths.VAO.Buffer.Update(VBGLData.CreateSingle(TempData))
-    TempData = UpdateFumonTimer(1, 1)
-    Call FumonTime.VAO.Buffer.Update(VBGLData.CreateSingle(TempData))
+    Call FumonSprites.VAO.Buffer.Update(VBGLData.CreateSingle(UpdateSprites(Fumon1, Fumon2)))
+    Call FumonHealths.VAO.Buffer.Update(VBGLData.CreateSingle(UpdateHealthBars(Fumon1, Fumon2)))
+    Call FumonTime.VAO.Buffer.Update(VBGLData.CreateSingle(UpdateFumonTimer(1, 1)))
 End Sub
 
 Private Function UpdateSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As Single()
@@ -70,8 +70,7 @@ Private Function UpdateSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As 
     Dim FumonsCount As Long: FumonsCount = 2
     ReDim Vertices(VertexSize * VertexCount  * FumonsCount - 1)
     ' xyz txty
-
-    With MeServer.GetTexture("Fumons").SubTextureID(Fumon1.Definition.Name & "Back")
+    With MeServer.Textures.ObjectByName("Fumons").SubTextureID(Fumon1.Definition.Name & "Back")
         Vertices(00) = -1: Vertices(01) = +0: Vertices(02) = 0: Vertices(03) = .GetX("TopLeft")     : Vertices(04) = .GetY("TopLeft")
         Vertices(05) = +0: Vertices(06) = +0: Vertices(07) = 0: Vertices(08) = .GetX("TopRight")    : Vertices(09) = .GetY("TopRight")
         Vertices(10) = -1: Vertices(11) = -1: Vertices(12) = 0: Vertices(13) = .GetX("BottomLeft")  : Vertices(14) = .GetY("BottomLeft")
@@ -80,7 +79,7 @@ Private Function UpdateSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As 
         Vertices(25) = -1: Vertices(26) = -1: Vertices(27) = 0: Vertices(28) = .GetX("BottomLeft")  : Vertices(29) = .GetY("BottomLeft")
     End With
 
-    With MeServer.GetTexture("Fumons").SubTextureID(Fumon2.Definition.Name & "Front")
+    With MeServer.Textures.ObjectByName("Fumons").SubTextureID(Fumon2.Definition.Name & "Front")
         Vertices(30) = +0: Vertices(31) = +1: Vertices(32) = 0: Vertices(33) = .GetX("TopLeft")     : Vertices(34) = .GetY("TopLeft")
         Vertices(35) = +1: Vertices(36) = +1: Vertices(37) = 0: Vertices(38) = .GetX("TopRight")    : Vertices(39) = .GetY("TopRight")
         Vertices(40) = +0: Vertices(41) = +0: Vertices(42) = 0: Vertices(43) = .GetX("BottomLeft")  : Vertices(44) = .GetY("BottomLeft")
@@ -152,7 +151,7 @@ Private Function CreateInput() As VBGLIInput
 
     Call Temp.AddKeyUp(Asc("f") , VBGLCallable.Create(Nothing              , "AddRenderObject"    , vbMethod, +0 , FumonRenderObject))
     Call Temp.AddKeyUp(Asc("i") , VBGLCallable.Create(Nothing              , "AddRenderObject"    , vbMethod, +0 , InventoryRenderObject))
-    Call Temp.AddKeyUp(Asc("r") , VBGLCallable.Create(MePlayer             , "CurrentMove"        , vbLet   , +0 , FightMove.FightMoveFlee))
+    Call Temp.AddKeyUp(Asc("r") , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentMove"     , vbMethod, +0 , FightMove.FightMoveFlee))
     Call Temp.AddKeyUp(Asc("a") , VBGLCallable.Create(Nothing              , "AddRenderObject"    , vbMethod, +0 , AttackRenderObject))
     Set CreateInput = Temp
 End Function
@@ -224,7 +223,7 @@ Private Function GetFumonSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) A
     Set Data = VBGLData.CreateSingle(UpdateSprites(Fumon1, Fumon2))
 
     Set GetFumonSprites = VBGLMesh.Create(VBGLPrCoShaderXYZTxTy, VBGLPrCoLayoutXYZTxTy, Data)
-    Call GetFumonSprites.AddTexture(MeServer.GetTexture("Fumons"))
+    Call GetFumonSprites.AddTexture(MeServer.Textures.ObjectByName("Fumons"))
 End Function
 Private Function GetFumonHealths(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As VBGLMesh
     Dim Data As IDataSingle
@@ -238,9 +237,9 @@ Private Function GetFumonTimer(ByVal Time1 As Single, ByVal Time2 As Single) As 
 
     Set GetFumonTimer = VBGLMesh.Create(VBGLPrCoShaderXYRGB, VBGLPrCoLayoutXYRGB, Data)
 End Function
-Private Function HistoryText(ByVal MyFight As Fight, ByVal Player As IPlayer) As String
+Private Function HistoryText(ByVal MyFight As Fight, ByVal Player As IFighter) As String
     Dim Obj As Object
-    Set Obj = Player.GetCurrentValue(MyFight)
+    Set Obj = Player.FightBase.GetCurrentValue(MyFight, Player)
     Dim Value As String
     Select Case TypeName(Obj)
         Case "Attack" : Value = Obj.Name
@@ -248,8 +247,8 @@ Private Function HistoryText(ByVal MyFight As Fight, ByVal Player As IPlayer) As
         Case "Item"   : Value = Obj.Name
     End Select
     Dim PlayerName As String
-    PlayerName = Player.Name
-    Select Case Player.GetCurrentMove
+    PlayerName = Player.PlayerBase.Name.Value
+    Select Case Player.FightBase.GetCurrentMove
         Case FightMove.FightMoveAttack      : HistoryText = PlayerName & " used Attack " & Value
         Case FightMove.FightMoveFlee        : HistoryText = PlayerName & " tried to flee"
         Case FightMove.FightMoveChangeFumon : HistoryText = PlayerName & " changed to Fumon " & Value

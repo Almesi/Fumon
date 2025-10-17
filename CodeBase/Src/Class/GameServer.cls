@@ -15,96 +15,55 @@ Private p_Workbook           As WorkBook
 Private p_GameMap            As GameMap
 Private p_ElementTypes       As ElementTypes
 Private p_Updates            As UpdateQueue
-Private p_FumonDefinitions() As FumonDefinition
-Private p_ItemDefinitions()  As ItemDefinition
-Private p_Players()          As IPlayer
-Private p_Quests()           As Quest
-Private p_Scripts()          As Script
-Private p_Attacks()          As Attack
-Private p_Fights()           As Fight
-Private p_Tiles()            As Tile
-Private p_Textures()         As VBGLTexture
+Private p_FumonDefinitions   As PropCollection
+Private p_ItemDefinitions    As PropCollection
+Private p_Players            As PropCollection
+Private p_Quests             As PropCollection
+Private p_Scripts            As PropCollection
+Private p_Attacks            As PropCollection
+Private p_Fights             As PropCollection
+Private p_Tiles              As PropCollection
+Private p_Textures           As PropCollection
 
-Public Property Let WorkBook(n_WorkBook                   As WorkBook)               : Set p_WorkBook         = n_WorkBook               : End Property
-Public Property Let GameMap(n_GameMap                     As GameMap)                : Set p_GameMap          = n_GameMap                : End Property
-Public Property Let ElementTypes(n_ElementTypes           As ElementTypes)           : Set p_ElementTypes     = n_ElementTypes           : End Property
-Public Property Let Updates(n_Updates                     As UpdateQueue)            : Set p_Updates          = n_Updates                : End Property
-Public Property Let FumonDefinitions(n_FumonDefinitions   As Variant)                : Let p_FumonDefinitions = n_FumonDefinitions       : End Property
-Public Property Let ItemDefinitions(n_ItemDefinitions     As Variant)                : Let p_ItemDefinitions  = n_ItemDefinitions        : End Property
-Public Property Let Players(n_Players                     As Variant)                : Let p_Players          = n_Players                : End Property
-Public Property Let Quests(n_Quests                       As Variant)                : Let p_Quests           = n_Quests                 : End Property
-Public Property Let Scripts(n_Scripts                     As Variant)                : Let p_Scripts          = n_Scripts                : End Property
-Public Property Let Attacks(n_Attacks                     As Variant)                : Let p_Attacks          = n_Attacks                : End Property
-Public Property Let Fights(n_Fight                        As Variant)                : Let p_Fights           = n_Fights                 : End Property
-Public Property Let Tiles(n_Tiles                         As Variant)                : Let p_Tiles            = n_Tiles                  : End Property
-Public Property Let Textures(n_Textures                   As Variant)                : Let p_Textures         = n_Textures               : End Property
+Public Property Let WorkBook(n_WorkBook                   As WorkBook)       : Set p_WorkBook         = n_WorkBook                     : End Property
+Public Property Let GameMap(n_GameMap                     As GameMap)        : Set p_GameMap          = n_GameMap                      : End Property
+Public Property Let ElementTypes(n_ElementTypes           As ElementTypes)   : Set p_ElementTypes     = n_ElementTypes                 : End Property
+Public Property Let Updates(n_Updates                     As UpdateQueue)    : Set p_Updates          = n_Updates                      : End Property
+Public Property Let FumonDefinitions(n_FumonDefinitions   As PropCollection) : Set p_FumonDefinitions = n_FumonDefinitions             : End Property
+Public Property Let ItemDefinitions(n_ItemDefinitions     As PropCollection) : Set p_ItemDefinitions  = n_ItemDefinitions              : End Property
+Public Property Let Players(n_Players                     As PropCollection) : Set p_Players          = n_Players                      : End Property
+Public Property Let Quests(n_Quests                       As PropCollection) : Set p_Quests           = n_Quests                       : End Property
+Public Property Let Scripts(n_Scripts                     As PropCollection) : Set p_Scripts          = n_Scripts                      : End Property
+Public Property Let Attacks(n_Attacks                     As PropCollection) : Set p_Attacks          = n_Attacks                      : End Property
+Public Property Let Fights(n_Fight                        As PropCollection) : Set p_Fights           = n_Fights                       : End Property
+Public Property Let Tiles(n_Tiles                         As PropCollection) : Set p_Tiles            = n_Tiles                        : End Property
+Public Property Let Textures(n_Textures                   As PropCollection) : Set p_Textures         = n_Textures                     : End Property
 
-Public Property Get Workbook()                            As WorkBook                : Set WorkBook           = p_WorkBook               : End Property
-Public Property Get GameMap()                             As GameMap                 : Set GameMap            = p_GameMap                : End Property
-Public Property Get ElementTypes()                        As ElementTypes            : Set ElementTypes       = p_ElementTypes           : End Property
-Public Property Get Updates()                             As UpdateQueue             : Set Updates            = p_Updates                : End Property
-Public Property Get FumonDefinitions()                    As Variant                 : Let FumonDefinitions   = p_FumonDefinitions       : End Property
-Public Property Get ItemDefinitions()                     As Variant                 : Let ItemDefinitions    = p_ItemDefinitions        : End Property
-Public Property Get Players()                             As Variant                 : Let Players            = p_Players                : End Property
-Public Property Get Quests()                              As Variant                 : Let Quests             = p_Quests                 : End Property
-Public Property Get Scripts()                             As Variant                 : Let Scripts            = p_Scripts                : End Property
-Public Property Get Attacks()                             As Variant                 : Let Attacks            = p_Attacks                : End Property
-Public Property Get Fights()                              As Variant                 : Let Fights             = p_Fights                 : End Property
-Public Property Get Tiles()                               As Variant                 : Let Tiles              = p_Tiles                  : End Property
-Public Property Get Textures()                            As Variant                 : Let Textures           = p_Textures               : End Property
+Public Property Get Workbook()                            As WorkBook        : Set WorkBook           = p_WorkBook                     : End Property
+Public Property Get GameMap()                             As GameMap         : Set GameMap            = p_GameMap                      : End Property
+Public Property Get ElementTypes()                        As ElementTypes    : Set ElementTypes       = p_ElementTypes                 : End Property
+Public Property Get Updates()                             As UpdateQueue     : Set Updates            = p_Updates                      : End Property
+Public Property Get FumonDefinitions()                    As PropCollection  : Set FumonDefinitions   = p_FumonDefinitions             : End Property
+Public Property Get ItemDefinitions()                     As PropCollection  : Set ItemDefinitions    = p_ItemDefinitions              : End Property
+Public Property Get Players()                             As PropCollection  : Set Players            = p_Players                      : End Property
+Public Property Get Quests()                              As PropCollection  : Set Quests             = p_Quests                       : End Property
+Public Property Get Scripts()                             As PropCollection  : Set Scripts            = p_Scripts                      : End Property
+Public Property Get Attacks()                             As PropCollection  : Set Attacks            = p_Attacks                      : End Property
+Public Property Get Fights()                              As PropCollection  : Set Fights             = p_Fights                       : End Property
+Public Property Get Tiles()                               As PropCollection  : Set Tiles              = p_Tiles                        : End Property
+Public Property Get Textures()                            As PropCollection  : Set Textures           = p_Textures                     : End Property
 
-Public Property Get FumonDefinition(Index               As Long) As FumonDefinition  : Set FumonDefinition    = p_FumonDefinitions(Index): End Property
-Public Property Get ItemDefinition(Index                As Long) As ItemDefinition   : Set ItemDefinition     = p_ItemDefinitions(Index) : End Property
-Public Property Get Player(Index                        As Long) As IPlayer          : Set Player             = p_Players(Index)         : End Property
-Public Property Get Quest(Index                         As Long) As Quest            : Set Quest              = p_Quests(Index)          : End Property
-Public Property Get Script(Index                        As Long) As Script           : Set Script             = p_Scripts(Index)         : End Property
-Public Property Get Attack(Index                        As Long) As Attack           : Set Attack             = p_Attacks(Index)         : End Property
-Public Property Get Fight(Index                         As Long) As Fight            : Set Fight              = p_Fights(Index)          : End Property
-Public Property Get Tile(Index                          As Long) As Tile             : Set Tile               = p_Tiles(Index)           : End Property
-Public Property Get Texture(Index                       As Long) As VBGLTexture      : Set Texture            = p_Textures(Index)        : End Property
+Public Property Get FumonDefinition(Index        As Long) As FumonDefinition : Set FumonDefinition    = FumonDefinitions.Object(Index) : End Property
+Public Property Get ItemDefinition(Index         As Long) As ItemDefinition  : Set ItemDefinition     = ItemDefinitions.Object(Index)  : End Property
+Public Property Get Quest(Index                  As Long) As Quest           : Set Quests             = Quests.Object(Index)           : End Property
+Public Property Get Player(Index                 As Long) As IPlayer         : Set Player             = Players.Object(Index)          : End Property
+Public Property Get Script(Index                 As Long) As Script          : Set Script             = Scripts.Object(Index)          : End Property
+Public Property Get Attack(Index                 As Long) As Attack          : Set Attack             = Attacks.Object(Index)          : End Property
+Public Property Get Fight(Index                  As Long) As Fight           : Set Fight              = Fights.Object(Index)           : End Property
+Public Property Get Tile(Index                   As Long) As TileDefinition  : Set Tile               = Tiles.Object(Index)            : End Property
+Public Property Get Texture(Index                As Long) As VBGLTexture     : Set Texture            = Textures.Object(Index)         : End Property
 
-Public Function GetPlayer(Name As String) As IPlayer
-    Dim i As Long
-    If UCase(Name) = "ME" Then
-        'Set GetPlayer = MePlayer
-    Else
-        Set GetPlayer = Player(GetIndex(Players, Name))
-    End If
-End Function
-
-Public Function GetTexture(Name As String) As VBGLTexture
-    Dim i As Long
-    For i = 0 To USize(Textures)
-        If Texture(i).Name = Name Then
-            Set GetTexture = Texture(i)
-            Exit Function
-        End If
-    Next i
-End Function
-
-Public Function GetScript(ByVal Name As String) As Script
-    Dim i As Long
-    For i = 0 To USize(Scripts)
-        If Script(i).Name Like Name Then
-            Set GetScript = Script(i)
-            Exit Function
-        End If
-    Next i
-End Function
-
-Public Function GetIndexByName(ObjectName As String, Name As String) As Long
-    Select Case ObjectName
-        Case "FumonDefinitions" : MeServer.GetIndex(FumonDefinitions , Name)
-        Case "ItemDefinitions"  : MeServer.GetIndex(ItemDefinitions  , Name)
-        Case "Players"          : MeServer.GetIndex(Players          , Name)
-        Case "Quests"           : MeServer.GetIndex(Quests           , Name)
-        Case "Scripts"          : MeServer.GetIndex(Scripts          , Name)
-        Case "Attacks"          : MeServer.GetIndex(Attacks          , Name)
-        Case "Fight"            : MeServer.GetIndex(Fights           , Name)
-    End Select
-End Function
-
-Public Function InitTextures(ByVal WB As WorkBook, ByVal FolderPath As String) As VBGLTexture()
+Public Function InitTextures(ByVal WB As WorkBook, ByVal FolderPath As String) As PropCollection
     Dim SpriteFolder As String
     SpriteFolder = FolderPath & "\Sprites"
     Dim fso As Object
@@ -125,41 +84,42 @@ Public Function InitTextures(ByVal WB As WorkBook, ByVal FolderPath As String) A
         Set Tex = VBGLTexture.Create(File.Path, FileName)
         Call VBGLAdd(ReturnArr, GetTexturePositions(WB, Tex))
     Next File
-    InitTextures = ReturnArr
+    Set InitTextures = PropCollection.Create(ReturnArr)
 End Function
 
-Public Function InitPlayers(ByVal WB As WorkBook) As IPlayer()
+Public Function InitPlayers(ByVal Rng As Range) As PropCollection
     Dim i As Long
     Dim Count As Long
     Dim WS As WorkSheet
     Dim TempArr() As IPlayer
 
-    With WB.Sheets("Players").Range("A2")
+    With Rng
         Count = RangeCount(.Offset(0, 0), xlDown)
         ReDim TempArr(Count)
         For i = 0 To Count
-            If .Offset(i, 3) = -1 Then
-                Set TempArr(i) = FactoryHumanPlayer.Create(.Offset(i, 0))
+            If .Offset(i, 2) = -1 Then
+                Set TempArr(i) = HumanPlayer.Create(.Offset(i, 0))
             Else
-                Set TempArr(i) = FactoryComPlayer.Create(.Offset(i, 0))
+                Set TempArr(i) = ComPlayer.Create(.Offset(i, 0))
             End If
         Next i
     End With
-    InitPlayers = TempArr
+    Set InitPlayers = PropCollection.Create(TempArr)
 End Function
 
-Public Function InitUpdates(ByVal WB As WorkBook) As UpdateQueue
+Public Function InitUpdates(ByVal Rng As Range) As UpdateQueue
     Dim i As Long
     Dim Once() As VBGLCallable
-    Set InitUpdates = FactoryUpdateQueue.Create()
 
-    Dim Temp() As IPlayer
+    Set InitUpdates = UpdateQueue.Create()
+
     If GameMap.ServerStarter.Formula <> Empty Then Exit Function
 
-    Temp = Players
+    Dim Temp() As IPlayer
+    Call Players.GetObjects(Temp)
     Call GameMap.ClearPlayers()
 
-    With WB.Sheets("ScriptInit").Range("A2")
+    With Rng
         Do While .Offset(i, 0).Formula <> Empty
             Call InitUpdates.AddThread(CreateCallables(CreateCallable(.Offset(i, 2))), Once, .Offset(i, 1))
             i = i + 1
@@ -168,7 +128,7 @@ Public Function InitUpdates(ByVal WB As WorkBook) As UpdateQueue
     Call GameMap.SetSpawnPoints(Temp)
 End Function
 
-Public Function InitGroup(Rng As Range, Definition As Object) As Object()
+Public Function InitGroup(ByVal Rng As Range, ByVal Definition As Object) As PropCollection
     Dim i As Long, Count As Long
     Dim TempArr() As Object
 
@@ -177,50 +137,16 @@ Public Function InitGroup(Rng As Range, Definition As Object) As Object()
     For i = 0 To Count
         Set TempArr(i) = Definition.Create(Rng.Offset(i, 0))
     Next i
-    InitGroup = TempArr
+    Set InitGroup = PropCollection.Create(TempArr)
 End Function
 
-Public Function GetObjects(Objects As Variant, ByRef Indices() As String) As Variant
-    Dim ReturnArr() As Object
-    ReDim ReturnArr(USize(Objects))
+Public Function GetFight(ByVal Player1 As IFighter, ByVal Player2 As IFighter) As Fight
     Dim i As Long
-    If USize(Indices(0)) = -1 Then Exit Function
-    For i = 0 To USize(Objects)
-        Set ReturnArr(i) = Objects(CLng(Indices(i)))
-    Next i
-    GetObjects = ReturnArr
-End Function
-
-Public Function GetObjectIndex(Objects As Variant, Object As Object) As Long
-    Dim i As Long
-    GetObjectIndex = -1
-    For i = 0 To USize(Objects)
-        If Objects(i) Is Object Then
-            GetObjectIndex = i
-            Exit Function
-        End If
-    Next i
-End Function
-
-Public Function AddFight(ByVal Player1 As IPlayer, ByVal Player2 As IPlayer) As Fight
-    Dim Found As Fight
-    Set Found = GetFight(Player1, Player2)
-    If IsSomething(Found) Then
-        Set AddFight = Found
-    Else
-        Set AddFight = Fight(VBGLAdd(p_Fights, FactoryFight.Create(Player1, Player2)))
-    End If
-End Function
-
-Public Sub RemoveFight(ByVal Index As Long)
-    Call VBGLArrayRemove(p_Fights, Index)
-End Sub
-
-Public Function GetFight(ByVal Player1 As IPlayer, ByVal Player2 As IPlayer) As Fight
-    Dim i As Long
+    Dim p1Num As Long : p1Num = Player1.PlayerBase.Number.Value
+    Dim p2Num As Long : p2Num = Player2.PlayerBase.Number.Value
     For i = 0 To USize(Fights)
         If IsSomething(Fight(i)) Then
-            If Fight(i).p1.Value = Player1.Number.Value And Fight(i).p2.Value = Player2.Number.Value Then
+            If Fight(i).p1.Value = p1Num And Fight(i).p2.Value = p2Num Then
                 Set GetFight = Fight(i)
                 Exit Function
             End If
@@ -230,26 +156,16 @@ End Function
 
 Public Sub Update()
     If GameMap.ServerStarter.Formula <> Empty Then
-        If GameMap.ServerStarter.Value = MePlayer.Number.Value Then
-            Call Updates.Update()
+        If GameMap.ServerStarter.Value = MePlayer.PlayerBase.Number.Value Then
+            Call Updates.Update(GameMap.Minute.Value)
             Call GameMap.UpdateTime()
         End If
     Else
-        GameMap.ServerStarter.Value = MePlayer.Number.Value
+        GameMap.ServerStarter.Value = MePlayer.PlayerBase.Number.Value
     End If
 End Sub
 
 
-
-Private Function GetIndex(ObjArr As Variant, Name As String) As Long
-    Dim i As Long
-    For i = 0 To USize(ObjArr)
-        If ObjArr(i).Name = Name Then
-            GetIndex = i
-            Exit Function
-        End If
-    Next i
-End Function
 
 Private Function GetTexturePositions(ByVal WB As WorkBook, ByVal Tex As VBGLTexture) As VBGLTexture
     Dim RngI As Range
@@ -396,7 +312,7 @@ Private Function GetArgs(ByVal Rng As Range) As Variant()
         If Text Like "*(*)" Then
             Dim LeftBracket As Long    : LeftBracket = Instr(1, Text, "(")
             Dim ScriptName  As String  : ScriptName = VBGLMidP(Text, 1, LeftBracket - 1) 
-            Dim Found       As Script  : Set Found = GetScript(ScriptName)
+            Dim Found       As Script  : Set Found = Scripts.ObjectByName(ScriptName)
             Dim Arg         As Variant : Arg = CVar(VBGLMidP(Text, LeftBracket + 1, Len(Text) - 1))
             Call VBGLAdd(Arr, Found.Run(Arg))
         Else

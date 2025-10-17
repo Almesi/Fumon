@@ -32,10 +32,11 @@ Public Function Create(ByVal Pointer As Range, ByVal Rows As Long, ByVal Columns
     Set Create = New Tiles
     Dim Temp() As Tile
     ReDim Temp(Rows, Columns)
+    Dim TempTile As Tile: Set TempTile = New Tile
     With Create
         For y = 0 To Rows
             For x = 0 To Columns
-                Set Temp(y, x) = FactoryTile.Create(Pointer.Offset(y, x))
+                Set Temp(y, x) = TempTile.Create(Pointer.Offset(y, x))
             Next x
         Next y
         .Tiles = Temp
@@ -69,10 +70,6 @@ Private Function GetArr(ByVal Rows As Long, ByVal Columns As Long, ByVal Var As 
             Dim TempString()         As String
             ReDim TempString(Rows, Columns)
             GetArr = TempString
-        Case "VBGLSubTexture"
-            Dim TempVBGLSubTexture() As VBGLSubTexture
-            ReDim TempVBGLSubTexture(Rows, Columns)
-            GetArr = TempVBGLSubTexture
         Case "IPlayer"
             Dim TempPlayer()        As IPlayer
             ReDim TempPlayer(Rows, Columns)

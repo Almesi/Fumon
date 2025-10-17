@@ -14,18 +14,15 @@ Option Explicit
 Private p_Number             As Long
 Private p_Name               As String
 Private p_Script             As Script
-Private p_SubTexture         As VBGLSubTexture
 
 Public Property Let Number(n_Number                       As Long)               : p_Number                = n_Number     : End Property
 Public Property Let Name(n_Name                           As String)             : p_Name                  = n_Name       : End Property
 Public Property Let Script(n_Value                        As Script)             : Set p_Script            = n_Value      : End Property
-Public Property Let SubTexture(n_SubTexture               As VBGLSubTexture)     : Set p_SubTexture        = n_SubTexture : End Property
 
 
 Public Property Get Number()                              As Long                : Number                  = p_Number     : End Property
 Public Property Get Name()                                As String              : Name                    = p_Name       : End Property
 Public Property Get Script()                              As Script              : Set Script              = p_Script     : End Property
-Public Property Get SubTexture()                          As VBGLSubTexture      : Set SubTexture          = p_SubTexture : End Property
 
 Public Function Create(Rng As Range) As ItemDefinition
     Set Create = New ItemDefinition
@@ -33,6 +30,5 @@ Public Function Create(Rng As Range) As ItemDefinition
         .Number            = Rng.Offset(0, 0).Value
         .Name              = Rng.Offset(0, 1).Value
         .Script            = FactoryServer.Script(Rng.Offset(0, 2).Value)
-        .SubTexture        = FactoryServer.GetTexture("Items").SubTexture(.Number)
     End With
 End Function

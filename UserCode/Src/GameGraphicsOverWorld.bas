@@ -26,15 +26,15 @@ Public Sub SetUpOverWorldGraphics()
 
     Dim Players() As Long
     Players = MeServer.GameMap.Tiles.TileData("Players")
-    Dim Data   As IDataSingle : Set Data   = GetPlayerData(MeServer.GetTexture("Players"), Players)
+    Dim Data   As IDataSingle : Set Data   = GetPlayerData(MeServer.Textures.ObjectByName("Players"), Players)
 
     Dim Shader As VBGLShader
     Set Shader = TileSet.Mesh.Shader
     Set PlayerPositions = VBGLMesh.Create(Shader, Layout, Data)
-    Call PlayerPositions.AddTexture(MeServer.GetTexture("Players"))
+    Call PlayerPositions.AddTexture(MeServer.Textures.ObjectByName("Players"))
 
 
-    Call TileSet.LookAt(MePlayerHuman.Column.Value, MePlayerHuman.Row.Value, ScreenSpriteX, ScreenSpriteY)
+    Call TileSet.LookAt(MePlayer.MoveBase.Column.Value, MePlayer.MoveBase.Row.Value, ScreenSpriteX, ScreenSpriteY)
 
     Call OverWorldRenderObject.AddDrawable(TileSet)
     Call OverWorldRenderObject.AddDrawable(PlayerPositions)
@@ -42,7 +42,7 @@ Public Sub SetUpOverWorldGraphics()
 End Sub
 
 Public Sub UpdateOverWorld(ByVal PlayerMoved As Boolean)
-    Call TileSet.LookAt(MePlayerHuman.Column.Value, MePlayerHuman.Row.Value, ScreenSpriteX, ScreenSpriteY)
+    Call TileSet.LookAt(MePlayer.MoveBase.Column.Value, MePlayer.MoveBase.Row.Value, ScreenSpriteX, ScreenSpriteY)
     If PlayerMoved Then
         Call PlayerPositions.VAO.Buffer.Update(UpdateData())
     End If
@@ -52,25 +52,25 @@ Private Function CreateInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Call Temp.AddKey(Asc("w")    , VBGLCallable.Create(MePlayerHuman , "Move"               , vbMethod, 1, +0, -1))
-    Call Temp.AddKey(Asc("a")    , VBGLCallable.Create(MePlayerHuman , "Move"               , vbMethod, 1, -1, +0))
-    Call Temp.AddKey(Asc("s")    , VBGLCallable.Create(MePlayerHuman , "Move"               , vbMethod, 1, +0, +1))
-    Call Temp.AddKey(Asc("d")    , VBGLCallable.Create(MePlayerHuman , "Move"               , vbMethod, 1, +1, +0))
-    Call Temp.AddKey(Asc("w")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
-    Call Temp.AddKey(Asc("a")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
-    Call Temp.AddKey(Asc("s")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
-    Call Temp.AddKey(Asc("d")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("w")    , VBGLCallable.Create(MePlayer , "Move"               , vbMethod, 1, +0, -1))
+    Call Temp.AddKey(Asc("a")    , VBGLCallable.Create(MePlayer , "Move"               , vbMethod, 1, -1, +0))
+    Call Temp.AddKey(Asc("s")    , VBGLCallable.Create(MePlayer , "Move"               , vbMethod, 1, +0, +1))
+    Call Temp.AddKey(Asc("d")    , VBGLCallable.Create(MePlayer , "Move"               , vbMethod, 1, +1, +0))
+    Call Temp.AddKey(Asc("w")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("a")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("s")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("d")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
 
-    Call Temp.AddKey(Asc("W")    , VBGLCallable.Create(MePlayerHuman , "Look"               , vbMethod, 0, xlUp))
-    Call Temp.AddKey(Asc("A")    , VBGLCallable.Create(MePlayerHuman , "Look"               , vbMethod, 0, xlLeft))
-    Call Temp.AddKey(Asc("S")    , VBGLCallable.Create(MePlayerHuman , "Look"               , vbMethod, 0, xlDown))
-    Call Temp.AddKey(Asc("D")    , VBGLCallable.Create(MePlayerHuman , "Look"               , vbMethod, 0, xlRight))
-    Call Temp.AddKey(Asc("W")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
-    Call Temp.AddKey(Asc("A")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
-    Call Temp.AddKey(Asc("S")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
-    Call Temp.AddKey(Asc("D")    , VBGLCallable.Create(Nothing       , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("W")    , VBGLCallable.Create(MePlayer , "Look"               , vbMethod, 0, xlUp))
+    Call Temp.AddKey(Asc("A")    , VBGLCallable.Create(MePlayer , "Look"               , vbMethod, 0, xlLeft))
+    Call Temp.AddKey(Asc("S")    , VBGLCallable.Create(MePlayer , "Look"               , vbMethod, 0, xlDown))
+    Call Temp.AddKey(Asc("D")    , VBGLCallable.Create(MePlayer , "Look"               , vbMethod, 0, xlRight))
+    Call Temp.AddKey(Asc("W")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("A")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("S")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
+    Call Temp.AddKey(Asc("D")    , VBGLCallable.Create(Nothing  , "UpdateOverWorld"    , vbMethod, 0, True))
 
-    Call Temp.AddKeyUp(Asc(" ")    , VBGLCallable.Create(MePlayerHuman , "Interact"           , vbMethod, 0, 1))
+    Call Temp.AddKeyUp(Asc(" ")  , VBGLCallable.Create(MePlayer , "Interact"           , vbMethod, 0, 1))
 
     Dim MaxX As Long : MaxX = MeServer.GameMap.Columns.Value + 1
     Dim MaxY As Long : MaxY = MeServer.GameMap.Rows.Value + 1
@@ -86,7 +86,7 @@ End Function
 Private Function UpdateData() As IDataSingle
     Dim Players() As Long
     Players = MeServer.GameMap.Tiles.TileData("Players")
-    Set UpdateData   = GetPlayerData(MeServer.GetTexture("Players"), Players)
+    Set UpdateData   = GetPlayerData(MeServer.Textures.ObjectByName("Players"), Players)
 End Function
 
 Private Function GetPlayerData(ByVal Texture As VBGLTexture, ByRef MapData() As Long) As IDataSingle
@@ -100,16 +100,8 @@ Private Function GetPlayerData(ByVal Texture As VBGLTexture, ByRef MapData() As 
             If Index <> -1 Then
                 Dim SpriteIndex As Long
                 Dim Player As IPlayer
-                Set Player = MeServer.Player(Index) 
-                If TypeName(Player) = "HumanPlayer" Then
-                    Dim TempH As HumanPlayer
-                    Set TempH = Player
-                    SpriteIndex = PlayerIndex(Index, TempH.LookDirection.Value)
-                Else
-                    Dim TempC As ComPlayer
-                    Set TempC = Player
-                    SpriteIndex = PlayerIndex(Index, TempC.LookDirection.Value)
-                End If
+                Set Player = MeServer.Player(Index)
+                SpriteIndex = PlayerIndex(Index, Player.MoveBase.LookDirection.Value)
                 Call AddTriangles(ReturnArr, x, y, 0.5, Texture.SubTexture(SpriteIndex), ScreenSpriteX, ScreenSpriteY)
             End If
         Next x

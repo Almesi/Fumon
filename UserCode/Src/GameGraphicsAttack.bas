@@ -15,9 +15,9 @@ Public Sub UpdateAttack(ByVal Index As Long)
     Dim i As Long
     Dim Color() As Single
     ReDim Color(3)
-    MePlayer.Fumons.FirstAlive.Attacks.Selected = Index
+    MeFighter.FightBase.Fumons.FirstAlive.Attacks.Selected = Index
     AttackList.Fonts = UpdateTextBox(UsedFont)
-    For i = 0 To MePlayer.Fumons.FirstAlive.Attacks.AttackCount
+    For i = 0 To MeFighter.FightBase.Fumons.FirstAlive.Attacks.AttackCount
         AttackList.Font(i).FontColor = Color
     Next i
     Color(1) = 1
@@ -30,15 +30,15 @@ Private Function CreateInput() As VBGLIInput
     Set Temp = New VBGLGeneralInput
 
     Dim GetSelected As VBGLCallable
-    Set GetSelected = VBGLCallable.Create(MePlayer.Fumons.FirstAlive.Attacks, "Selected", vbGet, -1)
-    Call Temp.AddKeyUp(Asc("1") , VBGLCallable.Create(Nothing  , "UpdateAttack"       , vbMethod, 0, 0))
-    Call Temp.AddKeyUp(Asc("2") , VBGLCallable.Create(Nothing  , "UpdateAttack"       , vbMethod, 0, 1))
-    Call Temp.AddKeyUp(Asc("3") , VBGLCallable.Create(Nothing  , "UpdateAttack"       , vbMethod, 0, 2))
-    Call Temp.AddKeyUp(Asc("4") , VBGLCallable.Create(Nothing  , "UpdateAttack"       , vbMethod, 0, 3))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MePlayer , "LetCurrentMove"     , vbMethod, 0, FightMove.FightMoveAttack))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MePlayer , "LetCurrentValue"    , vbMethod, 0, GetSelected))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(Nothing  , "RemoveRenderObject" , vbMethod, -1))
-    Call Temp.AddKeyUp(27       , VBGLCallable.Create(Nothing  , "RemoveRenderObject" , vbMethod, -1))
+    Set GetSelected = VBGLCallable.Create(MeFighter.FightBase.Fumons.FirstAlive.Attacks, "Selected", vbGet, -1)
+    Call Temp.AddKeyUp(Asc("1") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 0))
+    Call Temp.AddKeyUp(Asc("2") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 1))
+    Call Temp.AddKeyUp(Asc("3") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 2))
+    Call Temp.AddKeyUp(Asc("4") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 3))
+    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase , "LetCurrentMove"     , vbMethod, 0, FightMove.FightMoveAttack))
+    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase , "LetCurrentValue"    , vbMethod, 0, GetSelected))
+    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(Nothing             , "RemoveRenderObject" , vbMethod, -1))
+    Call Temp.AddKeyUp(27       , VBGLCallable.Create(Nothing             , "RemoveRenderObject" , vbMethod, -1))
     Set CreateInput = Temp
 End Function
 
@@ -56,7 +56,7 @@ End Function
 Private Function UpdateTextBox(FontLayout As VBGLFontLayout) As VBGLFont()
     Dim Fonts() As VBGLFont
     Dim Text As String
-    With MePlayer.Fumons.FirstAlive.Attacks
+    With MeFighter.FightBase.Fumons.FirstAlive.Attacks
         ReDim Fonts(.AttackCount)
         Dim i As Long
         For i = 0 To .AttackCount

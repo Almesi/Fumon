@@ -14,6 +14,6 @@ Private Function CreateInput() As VBGLIInput
     Set Temp = New VBGLGeneralInput
 
     Call Temp.AddKeyUp(27, VBGLCallable.Create(Nothing  , "RemoveRenderObject" , vbMethod, -1))
-    Call Temp.AddKeyUp(27, VBGLCallable.Create(TileSet  , "LookAt"             , vbMethod,  3, MePlayerHuman.Column.Value, MePlayerHuman.Row.Value, ScreenSpriteX, ScreenSpriteY))
+    Call Temp.AddKeyUp(27, VBGLCallable.Create(TileSet  , "LookAt"             , vbMethod,  3, MePlayerHuman.MoveBase.Column.Value, MePlayerHuman.MoveBase.Row.Value, ScreenSpriteX, ScreenSpriteY))
     Set CreateInput = Temp
 End Function

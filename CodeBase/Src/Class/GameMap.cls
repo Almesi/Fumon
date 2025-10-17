@@ -60,6 +60,7 @@ Public Property Get Tiles()                       As Tiles    : Set Tiles       
 
 Public Function Create(Map As Range, Rng As Range) As GameMap
     Set Create = New GameMap
+    Dim Temp As Tiles: Set Temp = New Tiles
     With Create
         .Name          = Rng.Offset(00, 0)
         .Rows          = Rng.Offset(01, 0)
@@ -74,7 +75,7 @@ Public Function Create(Map As Range, Rng As Range) As GameMap
         .SpawnColumn   = Rng.Offset(10, 0)
         .ServerStarter = Rng.Offset(11, 0)
         .MapPointer    = Map
-        .Tiles         = FactoryTiles.Create(Map, CLng(.Rows.Value), CLng(.Columns.Value))
+        .Tiles         = Temp.Create(Map, CLng(.Rows.Value), CLng(.Columns.Value))
     End With
 End Function
 
@@ -108,18 +109,9 @@ Public Sub SetSpawnPoints(ByRef Players() As IPlayer)
     Dim y As Long, x As Long
     Dim i As Long
     For i = 0 To USize(Players)
-        If TypeName(Players(i)) = "ComPlayer" Then
-            Dim Temp As ComPlayer
-            Set Temp = Players(i)
-            y = Temp.SpawnRow.Value
-            x = Temp.SpawnColumn.Value
-        Else
-            Dim Temp2 As HumanPlayer
-            Set Temp2 = Players(i)
-            y = Temp.Row.Value
-            x = Temp.Column.Value
-        End If
-        Tiles.Tile(y, x).SetMapPointPlayer(Players(i).Number.Value)
+        y = Players(i).MoveBase.SpawnRow.Value
+        x = Players(i).MoveBase.SpawnColumn.Value
+        Tiles.Tile(y, x).SetMapPointPlayer(Players(i).PlayerBase.Number.Value)
     Next i
 End Sub
 

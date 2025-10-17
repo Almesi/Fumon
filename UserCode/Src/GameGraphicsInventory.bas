@@ -12,15 +12,14 @@ Public Sub SetUpInventoryGraphics()
 End Sub
 
 Public Sub UpdateInventory(ByVal Offset As Long)
-    Debug.Assert False
     Dim i As Long
     Dim Color() As Single
     Dim Index As Long
-    Call MePlayer.Items.Increment(Offset)
-    Index = MePlayer.Items.Selected
+    Call MeFighter.FightBase.Items.Increment(Offset)
+    Index = MeFighter.FightBase.Items.Selected
     ReDim Color(2)
     InventoryList.Fonts = UpdateTextBox(UsedFont)
-    For i = 0 To MePlayer.Items.Count
+    For i = 0 To MeFighter.FightBase.Items.Count
         InventoryList.Font(i).FontColor = Color
     Next i
     Color(1) = 1
@@ -33,12 +32,12 @@ Private Function CreateInput() As VBGLIInput
     Set Temp = New VBGLGeneralInput
 
     Dim ItemCallback As VBGLCallable
-    Set ItemCallback = VBGLCallable.Create(MePlayer.Items, "SelectedItem", vbGet, -1)
+    Set ItemCallback = VBGLCallable.Create(MeFighter.FightBase.Items, "SelectedItem", vbGet, -1)
 
     Call Temp.AddKeyUp(Asc("w") , VBGLCallable.Create(Nothing              , "UpdateInventory"    , vbMethod, 0, +1))
     Call Temp.AddKeyUp(Asc("s") , VBGLCallable.Create(Nothing              , "UpdateInventory"    , vbMethod, 0, -1))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MePlayer             , "CurrentMove"        , vbLet   , 0, FightMove.FightMoveItem))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MePlayer             , "CurrentValue"       , vbLet   , 0, ItemCallback))
+    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentMove"     , vbLet   , 0, FightMove.FightMoveItem))
+    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentValue"    , vbLet   , 0, ItemCallback))
     Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(Nothing              , "RemoveRenderObject" , vbMethod, -1))
     Call Temp.AddKeyUp(27       , VBGLCallable.Create(Nothing              , "RemoveRenderObject" , vbMethod, -1))
     Set CreateInput = Temp
@@ -57,16 +56,16 @@ End Function
 
 Private Function UpdateTextBox(FontLayout As VBGLFontLayout) As VBGLFont()
     Dim Fonts() As VBGLFont
-    If MePlayer.Items.Count = -1 Then
+    If MeFighter.FightBase.Items.Count = -1 Then
         ReDim Fonts(0)
         Set Fonts(0) = VBGLFont.Create("No items yet", FontLayout)
         UpdateTextBox = Fonts
         Exit Function
     End If
-    ReDim Fonts(MePlayer.Items.Count)
+    ReDim Fonts(MeFighter.FightBase.Items.Count)
     Dim i As Long
-    For i = 0 To MePlayer.Items.Count
-        With MePlayer.Items.Item(i)
+    For i = 0 To MeFighter.FightBase.Items.Count
+        With MeFighter.FightBase.Items.Item(i)
             Set Fonts(i) = VBGLFont.Create(.Definition.Name & " [" & .Amount & "]" & vbCrLf, FontLayout)
         End With
     Next i

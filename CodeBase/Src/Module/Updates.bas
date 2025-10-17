@@ -3,7 +3,7 @@ Attribute VB_Name = "Updates"
 
 Option Explicit
 
-Public Function CreateMovePathScriptsParam(ByVal Player As ComPlayer, ParamArray Points() As Variant) As VBGLCallable()
+Public Function CreateMovePathScriptsParam(ByVal Player As IPlayer, ParamArray Points() As Variant) As VBGLCallable()
     Dim Size As Long
     Size = ((Ubound(Points) + 1) / 2) - 1
 
@@ -21,7 +21,7 @@ Public Function CreateMovePathScriptsParam(ByVal Player As ComPlayer, ParamArray
     CreateMovePathScriptsParam = CreateMovePathScripts(Player, x, y)
 End Function
 
-Public Function CreateMovePathScripts(ByVal Player As ComPlayer, ByRef x() As Long, ByRef y() As Long) As VBGLCallable()
+Public Function CreateMovePathScripts(ByVal Player As IPlayer, ByRef x() As Long, ByRef y() As Long) As VBGLCallable()
     Dim Size As Long
     Size = USize(x)
     Dim Arr() As VBGLCallable
@@ -33,7 +33,7 @@ Public Function CreateMovePathScripts(ByVal Player As ComPlayer, ByRef x() As Lo
     CreateMovePathScripts = Arr
 End Function
 
-Private Function CreateMovePath(ByVal Player As ComPlayer, ByVal StartX As Long, ByVal EndX As Long, ByVal StartY As Long, ByVal EndY As Long) As VBGLCallable()
+Private Function CreateMovePath(ByVal Player As IPlayer, ByVal StartX As Long, ByVal EndX As Long, ByVal StartY As Long, ByVal EndY As Long) As VBGLCallable()
     Dim x() As Long
     Dim y() As Long
     Call FindPathAlgorithm(StartX, EndX, StartY, EndY, x, y)

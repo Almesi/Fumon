@@ -57,11 +57,9 @@ Public Sub UpdateForEach(ByRef VBGLCallables() As VBGLCallable)
     Next i
 End Sub
 
-Public Sub Update()
+Public Sub Update(ByVal CurrentMinute As Long)
     Dim i As Long
     
-    Dim CurrentMinute As Long
-    CurrentMinute = MeServer.GameMap.Minute
     If Not CurrentRenderObject Is OverWorldRenderObject Then Exit Sub ' For Debugging
     For i = 0 To Frames.Size
         Dim Diff As Long

@@ -32,7 +32,6 @@ Private p_SpAttackModifier   As Double
 Private p_SpDefenseModifier  As Double
 Private p_InitiativeModifier As Double
 Private p_LevelFormula       As String
-Private p_SubTexture         As VBGLSubTexture
 Private p_Attacks()          As Attack
 Private p_LearnAttacks()     As Long
 
@@ -55,7 +54,6 @@ Public Property Let SpAttackModifier(n_SpAttackModifier        As Double)       
 Public Property Let SpDefenseModifier(n_SpDefenseModifier      As Double)            : Let p_SpDefenseModifier     = n_SpDefenseModifier  : End Property
 Public Property Let InitiativeModifier(n_InitiativeModifier    As Double)            : Let p_InitiativeModifier    = n_InitiativeModifier : End Property
 Public Property Let LevelFormula(n_LevelFormula                As String)            : Let p_LevelFormula          = n_LevelFormula       : End Property
-Public Property Let SubTexture(n_SubTexture                    As VBGLSubTexture)    : Set p_SubTexture            = n_SubTexture         : End Property
 Public Property Let Attacks(n_Attacks                          As Variant)           : Let p_Attacks               = n_Attacks            : End Property
 Public Property Let LearnAttacks(n_LearnAttacks                As Variant)           : Let p_LearnAttacks          = n_LearnAttacks       : End Property
 
@@ -81,7 +79,6 @@ Public Property Get SpAttackModifier()                         As Double        
 Public Property Get SpDefenseModifier()                        As Double             : Let SpDefenseModifier       = p_SpDefenseModifier  : End Property
 Public Property Get InitiativeModifier()                       As Double             : Let InitiativeModifier      = p_InitiativeModifier : End Property
 Public Property Get LevelFormula()                             As String             : Let LevelFormula            = p_LevelFormula       : End Property
-Public Property Get SubTexture()                               As VBGLSubTexture     : Set SubTexture              = p_SubTexture         : End Property
 Public Property Get Attacks()                                  As Variant            : Let Attacks                 = n_Attacks            : End Property
 Public Property Get LearnAttacks()                             As Variant            : Let LearnAttacks            = n_LearnAttacks       : End Property
 
@@ -111,7 +108,6 @@ Public Function Create(Rng As Range) As FumonDefinition
         .SpDefenseModifier  = Rng.Offset(0, 16).Value
         .InitiativeModifier = Rng.Offset(0, 17).Value
         .LevelFormula       = Rng.Offset(0, 18).Value
-        .SubTexture         = FactoryServer.GetTexture("Fumons").SubTexture(.Number)
         Call .GetAttacks(Rng.Offset(0, 19).Value)
     End With
 End Function

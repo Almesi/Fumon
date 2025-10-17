@@ -8,6 +8,7 @@ Option Explicit
 Public MyServer       As GameServer
 Public MePlayerHuman  As HumanPlayer
 Public MePlayer       As IPlayer
+Public MeFighter      As IFighter
 
 Public FactoryTextBoxProperties As VBGLProperties
 Public FactoryTextBox As VBGLTextBox
@@ -25,13 +26,14 @@ Public Sub InitializeGame()
     Set CurrentBuild = std_VBProject.Create(ThisWorkbook.VBProject, NewErrorHandler)
 
     Call CreateContextAndWindow(Logger, Shower)
-    If CurrentContext Is Nothing Then Exit Sub
+    If IsNothing(CurrentContext) Then Exit Sub
     Set MyServer = ConnectToServer(PlayerSettings)
-    If MyServer Is Nothing Then Exit Sub
+    If IsNothing(MyServer) Then Exit Sub
     
     Set MePlayerHuman = GetMyPlayer(MyServer, PlayerSettings)
-    If MePlayerHuman Is Nothing Then Exit Sub
-    Set MePlayer = MePlayerHuman
+    If IsNothing(MePlayerHuman) Then Exit Sub
+    Set MePlayer  = MePlayerHuman
+    Set MeFighter = MePlayerHuman
 
     #If TemporaryBuild = 1 Then
         If CurrentBuild.IncludeFolder(PlayerSettings.Setting("Source Code"), 0, True, False, True) = CurrentBuild.IS_ERROR Then Exit Sub
@@ -78,13 +80,21 @@ Private Function ConnectToServer(ByVal Settings As IConfig) As GameServer
     Debug.Print "Couldnt connect to Server"
     Debug.Print Err.Description
     Debug.Print Err.Source
-    If Not CurrentContext Is Nothing Then
+    If IsSomething(CurrentContext) Then
         Call glutDestroyWindow(CurrentContext.CurrentWindow.ID)
         CurrentContext.CurrentWindow = Nothing
     End If
 End Function
 
 Private Function GetMyPlayer(ByVal Server As GameServer, ByVal Settings As IConfig) As HumanPlayer
-    Set GetMyPlayer = Server.GetPlayer(Settings.Setting("Username"))
-    If GetMyPlayer Is Nothing Then MsgBox("Player not registered on Server")
+    Dim i As Long
+    Dim Name As String
+    Name = Settings.Setting("Username")
+    For i = 0 To Server.Players.Count
+        If Server.Players.Object(i).PlayerBase.Name.Value = Name Then
+            Set GetMyPlayer = Server.Players.Object(i)
+            Exit For
+        End If
+    Next i
+    If IsNothing(GetMyPlayer) Then MsgBox("Player not registered on Server")
 End Function
