@@ -24,11 +24,11 @@ Public Property Get Number()                              As Long               
 Public Property Get Name()                                As String              : Name                    = p_Name       : End Property
 Public Property Get Script()                              As Script              : Set Script              = p_Script     : End Property
 
-Public Function Create(Rng As Range) As ItemDefinition
+Public Function Create(ByVal Rng As Range, ByVal Scripts As PropCollection) As ItemDefinition
     Set Create = New ItemDefinition
     With Create
         .Number            = Rng.Offset(0, 0).Value
         .Name              = Rng.Offset(0, 1).Value
-        .Script            = FactoryServer.Script(Rng.Offset(0, 2).Value)
+        .Script            = Scripts.Object(Rng.Offset(0, 2).Value)
     End With
 End Function

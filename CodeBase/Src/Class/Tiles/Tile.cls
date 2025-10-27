@@ -20,25 +20,25 @@ Public Property Let Range(n_Range    As Range)          : Set p_Range   = n_Rang
 Public Property Get Tile()           As TileDefinition  : Set Tile      = p_Tile   : End Property
 Public Property Get Range()          As Range           : Set Range     = p_Range  : End Property
 
-Public Function Create(Rng As Range) As Tile
+Public Function Create(Rng As Range, ByVal TileDefinitions As PropCollection) As Tile
     Dim Index As Long
     Set Create = New Tile
     With Create
         .Range      = Rng
         Index = CLng(.ExtractPoint("Tiles"))
-        If Index <> -1 Then .Tile = FactoryServer.Tile(Index)
+        If Index <> -1 Then .Tile = TileDefinitions.Object(Index)
     End With
 End Function
 
 Public Function Player() As IPlayer
     Dim Index As Long
     Index = CLng(ExtractPoint("Players"))
-    If Index <> -1 Then Set Player = FactoryServer.Player(Index)
+    If Index <> -1 Then Set Player = MeServer.Player(Index)
 End Function
 Public Function Script() As Script
     Dim Index As Long
     Index = CLng(ExtractPoint("Scripts"))
-    If Index <> -1 Then Script = FactoryServer.Script(Index)
+    If Index <> -1 Then Script = MeServer.Script(Index)
 End Function
 
 Public Sub SetMapPoint(Optional ByVal Tile As String = "KEEP", Optional ByVal Player As String = "KEEP", Optional ByVal Script As String = "KEEP")

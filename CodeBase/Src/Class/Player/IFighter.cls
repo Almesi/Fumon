@@ -10,10 +10,10 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
-Private Property Get IFighter_Number()  As Range  : End Property
-Private Property Get IFighter_Name()    As Range  : End Property
-Private Property Get IFighter_Fumons()  As Fumons : End Property
-Private Property Get IFighter_Items()   As Items  : End Property
+Public Property Get Number()  As Range  : End Property
+Public Property Get Name()    As Range  : End Property
+Public Property Get Fumons()  As Fumons : End Property
+Public Property Get Items()   As Items  : End Property
 
 Public Property Get PlayerBase() As PlayerBase
 End Property

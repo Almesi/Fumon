@@ -5,11 +5,11 @@ Option Explicit
 
 Private OptionsList As VBGLTextBox
 
-Public Sub SetUpOptionsGraphics()
-    Set OptionsList = CreateOptionsList
-    OptionsRenderObject.Inputt = CreateInput()
-    Call OptionsRenderObject.AddDrawable(OptionsList)
-End Sub
+Public Function SetUpOptionsGraphics() As VBGLRenderObject
+    Set OptionsList = CreateOptionsList()
+    Set SetUpOptionsGraphics = VBGLRenderObject.Create(CreateInput(), CurrentContext.CurrentFrame())
+    Call SetUpOptionsGraphics.AddDrawable(OptionsList)
+End Function
 
 Public Sub UpdateOptions(ByVal Index As Long)
     Call RemoveRenderObject()
@@ -19,7 +19,7 @@ Private Function CreateInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Call Temp.AddKeyUp(27, VBGLCallable.Create(Nothing , "RemoveRenderObject" , vbMethod, -1))
+    Call Temp.AddKeyUp(27, ConvertCallable("RemoveRenderObject()"))
     Set CreateInput = Temp
 End Function
 
@@ -31,7 +31,7 @@ Private Function CreateOptionsList() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, +1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +1.0!, +1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set CreateOptionsList = VBGLTextBox.Create(Temp, UpdateTextBox(UsedFont))
+    Set CreateOptionsList = FactoryTextBox.Create(Temp, UpdateTextBox(UsedFont))
 End Function
 
 Private Function UpdateTextBox(FontLayout As VBGLFontLayout) As VBGLFont()

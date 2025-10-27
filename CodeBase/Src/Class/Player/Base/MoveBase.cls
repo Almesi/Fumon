@@ -10,8 +10,9 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
-
+Private p_PlayerNumber      As Long
 Private p_Money             As Range
+Private p_Map               As GameMap
 Private p_Row               As Range
 Private p_Column            As Range
 Private p_SpawnRow          As Range
@@ -19,48 +20,54 @@ Private p_SpawnColumn       As Range
 Private p_LookDirection     As Range
 
 Public Function Offset() As Long
-    Offset = 6
+    Offset = 7
 End Function
 
 
-Public Property Let Money(ByVal n_Money                   As Range)              : Set p_Money           = n_Money             : End Property
-Public Property Let Row(ByVal n_Row                       As Range)              : Set p_Row             = n_Row               : End Property
-Public Property Let Column(ByVal n_Column                 As Range)              : Set p_Column          = n_Column            : End Property
-Public Property Let SpawnRow(ByVal n_SpawnRow             As Range)              : Set p_SpawnRow        = n_SpawnRow          : End Property
-Public Property Let SpawnColumn(ByVal n_SpawnColumn       As Range)              : Set p_SpawnColumn     = n_SpawnColumn       : End Property
-Public Property Let LookDirection(ByVal n_LookDirection   As Range)              : Set p_LookDirection   = n_LookDirection     : End Property
+Public Property Let PlayerNumber(ByVal n_PlayerNumber     As Long)    : Let p_PlayerNumber    = n_PlayerNumber      : End Property
+Public Property Let Money(ByVal n_Money                   As Range)   : Set p_Money           = n_Money             : End Property
+Public Property Let Map(ByVal n_Map                       As GameMap) : Set p_Map             = n_Map               : End Property
+Public Property Let Row(ByVal n_Row                       As Range)   : Set p_Row             = n_Row               : End Property
+Public Property Let Column(ByVal n_Column                 As Range)   : Set p_Column          = n_Column            : End Property
+Public Property Let SpawnRow(ByVal n_SpawnRow             As Range)   : Set p_SpawnRow        = n_SpawnRow          : End Property
+Public Property Let SpawnColumn(ByVal n_SpawnColumn       As Range)   : Set p_SpawnColumn     = n_SpawnColumn       : End Property
+Public Property Let LookDirection(ByVal n_LookDirection   As Range)   : Set p_LookDirection   = n_LookDirection     : End Property
 
-Public Property Get Money()                               As Range               : Set Money             = p_Money             : End Property
-Public Property Get Row()                                 As Range               : Set Row               = p_Row               : End Property
-Public Property Get Column()                              As Range               : Set Column            = p_Column            : End Property
-Public Property Get SpawnRow()                            As Range               : Set SpawnRow          = p_SpawnRow          : End Property
-Public Property Get SpawnColumn()                         As Range               : Set SpawnColumn       = p_SpawnColumn       : End Property
-Public Property Get LookDirection()                       As Range               : Set LookDirection     = p_LookDirection     : End Property
+Public Property Get PlayerNumber()                        As Long     : Let PlayerNumber      = p_PlayerNumber      : End Property
+Public Property Get Money()                               As Range    : Set Money             = p_Money             : End Property
+Public Property Get Map()                                 As GameMap  : Set Map               = p_Map               : End Property
+Public Property Get Row()                                 As Range    : Set Row               = p_Row               : End Property
+Public Property Get Column()                              As Range    : Set Column            = p_Column            : End Property
+Public Property Get SpawnRow()                            As Range    : Set SpawnRow          = p_SpawnRow          : End Property
+Public Property Get SpawnColumn()                         As Range    : Set SpawnColumn       = p_SpawnColumn       : End Property
+Public Property Get LookDirection()                       As Range    : Set LookDirection     = p_LookDirection     : End Property
 
-Public Function Create(ByVal Rng As Range) As MoveBase
+Public Function Create(ByVal n_PlayerNumber As Long, ByVal Rng As Range, ByVal GameMaps As PropCollection) As MoveBase
     Set Create = New MoveBase
     With Create
+        .PlayerNumber  = n_PlayerNumber
         .Money         = Rng.Offset(0, 0)
-        .Row           = Rng.Offset(0, 1)
-        .Column        = Rng.Offset(0, 2)
-        .SpawnRow      = Rng.Offset(0, 3)
-        .SpawnColumn   = Rng.Offset(0, 4)
-        .LookDirection = Rng.Offset(0, 5)
+        .Map           = GameMaps.Object(Rng.Offset(0, 1).Value)
+        .Row           = Rng.Offset(0, 2)
+        .Column        = Rng.Offset(0, 3)
+        .SpawnRow      = Rng.Offset(0, 4)
+        .SpawnColumn   = Rng.Offset(0, 5)
+        .LookDirection = Rng.Offset(0, 6)
         .Row.Value     = .SpawnRow.Value
         .Column.Value  = .SpawnColumn.Value
     End With
 End Function
 
-Public Sub Teleport(ByVal Number As Long, ByVal x As Long, ByVal y As Long)
+Public Sub Teleport(ByVal x As Long, ByVal y As Long)
     Dim Seed As Date
     Dim RandomNumber As Double
     Seed = Date()
     RandomNumber = Rnd(Seed)
-    With MeServer.GameMap.Tiles
-        If Traverseable(y, x) Then
+    With Map.Tiles
+        If Map.Traverseable(y, x) Then
             If .Tile(y, x).Tile.Speed >= RandomNumber Then ' If random value is smaller than chance to go to new tile [1>=0,1 = guaranteed]
                 Call .Tile(Row.Value, Column.Value).SetMapPointPlayer(-1)
-                Call .Tile(y, x).SetMapPointPlayer(Number)
+                Call .Tile(y, x).SetMapPointPlayer(PlayerNumber)
                 Call Look(DirectionByMovement(x - Column.Value, y - Row.Value))
                 Row.Value    = y
                 Column.Value = x
@@ -72,13 +79,13 @@ Public Sub Teleport(ByVal Number As Long, ByVal x As Long, ByVal y As Long)
     End With
 End Sub
 
-Public Sub Move(ByVal Number As Long, ByVal x As Long, ByVal y As Long)
-    Call Teleport(Number, Column.Value + x, Row.Value + y)
+Public Sub Move(ByVal x As Long, ByVal y As Long)
+    Call Teleport(Column.Value + x, Row.Value + y)
 End Sub
 
-Public Sub MovePath(ByVal Number As Long, ByRef x() As Long, ByRef y() As Long)
+Public Sub MovePath(ByRef x() As Long, ByRef y() As Long)
     Dim i As Long
-    For i = 0 To ArraySize(x)
+    For i = 0 To USize(x)
         Call Move(x(i), y(i))
     Next i
 End Sub
@@ -110,10 +117,11 @@ End Sub
 
 Public Function InFront(ByVal Offset As Long) As Tile
     Select Case LookDirection
-        Case xlUp    : InFront = MeServer.GameMap.Tiles.Tile(Row.Value - Offset, Column.Value)
-        Case xlDown  : InFront = MeServer.GameMap.Tiles.Tile(Row.Value + Offset, Column.Value)
-        Case xlLeft  : InFront = MeServer.GameMap.Tiles.Tile(Row.Value         , Column.Value - Offset)
-        Case xlRight : InFront = MeServer.GameMap.Tiles.Tile(Row.Value         , Column.Value + Offset)
+        Case xlUp    : Set InFront = Map.Tiles.Tile(Row.Value - Offset, Column.Value)
+        Case xlDown  : Set InFront = Map.Tiles.Tile(Row.Value + Offset, Column.Value)
+        Case xlLeft  : Set InFront = Map.Tiles.Tile(Row.Value         , Column.Value - Offset)
+        Case xlRight : Set InFront = Map.Tiles.Tile(Row.Value         , Column.Value + Offset)
+    End Select
 End Function
 
 Public Function SubTextureName(ByVal Name As String) As String
@@ -125,24 +133,6 @@ Public Function SubTextureName(ByVal Name As String) As String
     End Select
 End Function
 
-
-
-Private Function InBounds(ByVal Y As Long, ByVal X As Long) As Boolean
-    InBounds = Y >= 0                                And _
-               Y =< MeServer.GameMap.Rows.Value      And _
-               X >= 0                                And _
-               X =< MeServer.GameMap.Columns.Value
-End Function
-
-Private Function Traverseable(ByVal Y As Long, ByVal X As Long) As Boolean
-    If InBounds(Y, X) Then
-        Dim nTile As Tile
-        Set nTile = MeServer.GameMap.Tiles.Tile(Y, X)
-        If nTile.Tile.Speed = 0        Then Exit Function
-        If IsSomething(nTile.Player)   Then Exit Function
-        Traverseable = True
-    End If
-End Function
 
 Private Function DirectionByMovement(ByVal x As Long, ByVal y As Long) As XlDirection
     Select Case True
@@ -204,9 +194,9 @@ Private Function GetTileRange(ByVal Offset As Long) As Tile
     x = Column.Value
     y = Row.Value
     Select Case LookDirection.Value
-        Case xlUp    : Set GetTileRange = MeServer.GameMap.Tiles.Tile(y - Offset, x)
-        Case xlDown  : Set GetTileRange = MeServer.GameMap.Tiles.Tile(y + Offset, x)
-        Case xlLeft  : Set GetTileRange = MeServer.GameMap.Tiles.Tile(y, x - Offset)
-        Case xlRight : Set GetTileRange = MeServer.GameMap.Tiles.Tile(y, x + Offset)
+        Case xlUp    : Set GetTileRange = Map.Tiles.Tile(y - Offset, x)
+        Case xlDown  : Set GetTileRange = Map.Tiles.Tile(y + Offset, x)
+        Case xlLeft  : Set GetTileRange = Map.Tiles.Tile(y, x - Offset)
+        Case xlRight : Set GetTileRange = Map.Tiles.Tile(y, x + Offset)
     End Select
 End Function

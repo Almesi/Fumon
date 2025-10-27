@@ -86,7 +86,7 @@ Public Property Get AttackDef(Index As Long)                   As Attack        
 Public Property Get LearnAttack(Index As Long)                 As Long               : Let LearnAttack             = p_LearnAttacks(Index): End Property
 
 
-Public Function Create(Rng As Range) As FumonDefinition
+Public Function Create(ByVal Rng As Range, ByVal AttackDefs As PropCollection) As FumonDefinition
     Set Create = New FumonDefinition
     With Create
         .Number             = Rng.Offset(0, 00).Value
@@ -108,11 +108,11 @@ Public Function Create(Rng As Range) As FumonDefinition
         .SpDefenseModifier  = Rng.Offset(0, 16).Value
         .InitiativeModifier = Rng.Offset(0, 17).Value
         .LevelFormula       = Rng.Offset(0, 18).Value
-        Call .GetAttacks(Rng.Offset(0, 19).Value)
+        Call .GetAttacks(Rng.Offset(0, 19).Value, AttackDefs)
     End With
 End Function
 
-Public Sub GetAttacks(ByVal Definition As String)
+Public Sub GetAttacks(ByVal Definition As String, ByVal AttackDefs As PropCollection)
     Dim i As Long
     Dim AttackDefinitions() As String
     AttackDefinitions = Split(Definition, ", ")
@@ -122,7 +122,7 @@ Public Sub GetAttacks(ByVal Definition As String)
         Dim AttackIndex    As Long   : AttackIndex    = Clng(VBGLMidP(Text, 1, Point - 1))
         Dim LearnAttackDef As Long   : LearnAttackDef = CLng(VBGLMidP(Text, Point + 1, Len(Text) - 1))
 
-        Call VBGLAdd(p_Attacks, FactoryServer.Attack(AttackIndex))
+        Call VBGLAdd(p_Attacks, AttackDefs.Object(AttackIndex))
         Call VBGLAdd(p_LearnAttacks, LearnAttackDef)
     Next i
 End Sub

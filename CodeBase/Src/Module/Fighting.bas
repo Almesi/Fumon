@@ -7,6 +7,7 @@ Public Sub StartFightFromDistance(ByVal Player1 As IFighter, ByVal Offset As Lon
     Dim Player2 As IFighter
     Set Player2 = HumanPlayerInFront(Player1, Offset)
     If IsSomething(Player2) Then
+        Debug.Assert False
         Call DoFightAndWalkBack(Player1, Player2, MessageStart, MessageWin, MessageLose)
     End If
 End Sub
@@ -18,7 +19,7 @@ Public Function HumanPlayerInFront(ByVal Player As ComPlayer, ByVal Offset As Lo
         Set Human = Player.MoveBase.InFront(i).Player
         If IsSomething(Human) Then
             If TypeName(Human) = "HumanPlayer" Then
-                HumanPlayerInFront = Human
+                Set HumanPlayerInFront = Human
                 Exit Function
             End If
         End If
@@ -26,26 +27,26 @@ Public Function HumanPlayerInFront(ByVal Player As ComPlayer, ByVal Offset As Lo
 End Function
 
 Public Sub DoFightAndWalkBack(ByVal Player1 As IFighter, ByVal Player2 As IFighter, ByVal MessageStart As String, ByVal MessageWin As String, ByVal MessageLose As String)
-    Dim p1Number      As Long        : p1Number = Player1.PlayerBase.Number.Value
-    Dim p2Number      As Long        : p2Number = Player2.PlayerBase.Number.Value
+    Dim p1Number      As Long        : p1Number = Player1.Number.Value
+    Dim p2Number      As Long        : p2Number = Player2.Number.Value
     Dim p1Player      As IPlayer     : Set p1Player = Player1
-    Dim PrevDirection As xlDirection : PrevDirection = p1Player.LookDirection
+    Dim PrevDirection As xlDirection : PrevDirection = p1Player.MoveBase.LookDirection
     Dim x() As Long
     Dim y() As Long
     Call FindPath(p1Number, p2Number, x, y)
-    Call MovePath(p1Number, x, y)
+    Call p1Player.MovePath(x, y)
     Call DoFight(Player1, Player2, MessageStart, MessageWin, MessageLose)
 
     Dim ReversedX() As Long
     Dim ReversedY() As Long
     Call ReversePath(x, y, ReversedX, ReversedY)
-    Call MovePath(p1Number, x, y)
+    Call p1Player.MovePath(ReversedX, ReversedY)
     Call MeServer.Player(p1Number).Look(PrevDirection)
 End Sub
 
 Public Sub DoFight(ByVal Player1 As IFighter, ByVal Player2 As IFighter, ByVal MessageStart As String, ByVal MessageWin As String, ByVal MessageLose As String)
-    Dim p1Name      As Long        : p1Name = Player1.PlayerBase.Name.Value
-    Dim p2Name      As Long        : p2Name = Player2.PlayerBase.Name.Value
+    Dim p1Name      As String: p1Name = Player1.Name.Value
+    Dim p2Name      As String: p2Name = Player2.Name.Value
     If TypeName(Player1) = "ComPlayer" Then Call Say(p1Name, MessageStart) Else Call Say(p2Name, MessageStart)
 
     If TypeName(Player1) = "HumanPlayer" And TypeName(Player2) = "ComPlayer" Then

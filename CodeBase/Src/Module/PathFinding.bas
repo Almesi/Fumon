@@ -15,7 +15,7 @@ Private Type Node
     Open      As Boolean
 End Type
 
-Public Sub CreateMovePath(ByRef xPoints() As Long, ByRef yPoints() As Long, ByRef x() As Long, ByRef y() As Long)
+Public Sub CreateMovePath(ByVal Map As GameMap, ByRef xPoints() As Long, ByRef yPoints() As Long, ByRef x() As Long, ByRef y() As Long)
     Dim TempX() As Long
     Dim TempY() As Long
     Dim StartX As Long, StartY As Long
@@ -30,7 +30,7 @@ Public Sub CreateMovePath(ByRef xPoints() As Long, ByRef yPoints() As Long, ByRe
         StartY = yPoints(i)
         EndX   = xPoints(Index)
         EndY   = yPoints(Index)
-        Call FindPathAlgorithm(StartX, EndX, StartY, EndY, TempX, TempY)
+        Call FindPathAlgorithm(Map, StartX, EndX, StartY, EndY, TempX, TempY)
         Call VBGLArrayMerge(x, TempX)
         Call VBGLArrayMerge(y, TempY)
     Next i
@@ -50,14 +50,17 @@ Public Sub DefinePath(ByRef x() As Long, ByRef y() As Long, ParamArray Points() 
     Next i
 End Sub
 
-Public Function FindPath(ByVal Player1 As Long, ByVal Player2 As Long, ByRef x() As Long, ByRef y() As Long)
-    Dim StartX As Long : StartX = MeServer.Player(Player1).Column.Value
-    Dim StartY As Long : StartY = MeServer.Player(Player1).Row.Value
-    Dim EndX   As Long : EndX   = MeServer.Player(Player2).Column.Value
-    Dim EndY   As Long : EndY   = MeServer.Player(Player2).Row.Value - 1 ' will always stop above below player, thats prone to bugs since it doesnt check if that is usable
+Public Sub FindPath(ByVal Player1 As Long, ByVal Player2 As Long, ByRef x() As Long, ByRef y() As Long)
+    Dim p1     As IPlayer : Set p1 = MeServer.Player(Player1)
+    Dim p2     As IPlayer : Set p2 = MeServer.Player(Player2)
+    
+    Dim StartX As Long : StartX = p1.MoveBase.Column.Value
+    Dim StartY As Long : StartY = p1.MoveBase.Row.Value
+    Dim EndX   As Long : EndX   = p2.MoveBase.Column.Value
+    Dim EndY   As Long : EndY   = p2.MoveBase.Row.Value - 1 ' will always stop above below player, thats prone to bugs since it doesnt check if that is usable
 
-    Call FindPathAlgorithm(StartX, EndX, StartY, EndY, x, y)
-End Function
+    Call FindPathAlgorithm(p1.MoveBase.Map, StartX, EndX, StartY, EndY, x, y)
+End Sub
 
 Public Function ReversePath(ByRef InX() As Long, ByRef InY() As Long, ByRef OutX() As Long, ByRef OutY() As Long)
     Dim i As Long
@@ -74,10 +77,10 @@ Public Function ReversePath(ByRef InX() As Long, ByRef InY() As Long, ByRef OutX
 
 End Function
 
-Public Sub FindPathAlgorithm(ByVal StartX As Long, ByVal EndX As Long, ByVal StartY As Long, ByVal EndY As Long, ByRef x() As Long, ByRef y() As Long)
+Public Sub FindPathAlgorithm(ByVal Map As GameMap, ByVal StartX As Long, ByVal EndX As Long, ByVal StartY As Long, ByVal EndY As Long, ByRef x() As Long, ByRef y() As Long)
     Dim i As Long
-    Dim Rows       As Long : Rows    = MeServer.GameMap.Rows.Value
-    Dim Columns    As Long : Columns = MeServer.GameMap.Columns.Value
+    Dim Rows       As Long : Rows    = Map.Rows.Value
+    Dim Columns    As Long : Columns = Map.Columns.Value
     Dim Grid()     As Node : Grid    = InitializeGrid(Rows, Columns)
     Dim OpenList() As Node : ReDim OpenList(0)
     Dim CountOpen  As Long : CountOpen = 0
@@ -106,7 +109,7 @@ Public Sub FindPathAlgorithm(ByVal StartX As Long, ByVal EndX As Long, ByVal Sta
             nx = dirX(i)
             ny = dirY(i)
             
-            If MeServer.GameMap.Traverseable(ny, nx) Then
+            If Map.Traverseable(ny, nx) Then
                 Dim Neighbor As Node
                 Neighbor = Grid(ny, nx)
                 Call ProcessNode(Grid, OpenList, Current, Neighbor, nx, ny, EndX, EndY, CountOpen)

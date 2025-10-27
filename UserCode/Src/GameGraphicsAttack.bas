@@ -5,11 +5,11 @@ Option Explicit
 
 Private AttackList As VBGLTextBox
 
-Public Sub SetUpAttackGraphics()
-    Set AttackList = CreateAttackList
-    AttackRenderObject.Inputt = CreateInput()
-    Call AttackRenderObject.AddDrawable(AttackList)
-End Sub
+Public Function SetUpAttackGraphics() As VBGLRenderObject
+    Set AttackList = CreateAttackList()
+    Set SetUpAttackGraphics = VBGLRenderObject.Create(CreateInput(), CurrentContext.CurrentFrame())
+    Call SetUpAttackGraphics.AddDrawable(AttackList)
+End Function
 
 Public Sub UpdateAttack(ByVal Index As Long)
     Dim i As Long
@@ -30,15 +30,15 @@ Private Function CreateInput() As VBGLIInput
     Set Temp = New VBGLGeneralInput
 
     Dim GetSelected As VBGLCallable
-    Set GetSelected = VBGLCallable.Create(MeFighter.FightBase.Fumons.FirstAlive.Attacks, "Selected", vbGet, -1)
-    Call Temp.AddKeyUp(Asc("1") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 0))
-    Call Temp.AddKeyUp(Asc("2") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 1))
-    Call Temp.AddKeyUp(Asc("3") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 2))
-    Call Temp.AddKeyUp(Asc("4") , VBGLCallable.Create(Nothing             , "UpdateAttack"       , vbMethod, 0, 3))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase , "LetCurrentMove"     , vbMethod, 0, FightMove.FightMoveAttack))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase , "LetCurrentValue"    , vbMethod, 0, GetSelected))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(Nothing             , "RemoveRenderObject" , vbMethod, -1))
-    Call Temp.AddKeyUp(27       , VBGLCallable.Create(Nothing             , "RemoveRenderObject" , vbMethod, -1))
+    Set GetSelected = ConvertCallable("$0.Selected()", MeFighter.FightBase.Fumons.FirstAlive.Attacks)
+    Call Temp.AddKeyUp(Asc("1") , ConvertCallable("UpdateAttack(0)"))
+    Call Temp.AddKeyUp(Asc("2") , ConvertCallable("UpdateAttack(1)"))
+    Call Temp.AddKeyUp(Asc("3") , ConvertCallable("UpdateAttack(2)"))
+    Call Temp.AddKeyUp(Asc("4") , ConvertCallable("UpdateAttack(3)"))
+    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("$0.LetCurrentMove()" , MeFighter.FightBase))
+    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("$0.LetCurrentValue()", MeFighter.FightBase))
+    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("RemoveRenderObject()"))
+    Call Temp.AddKeyUp(27       , ConvertCallable("RemoveRenderObject()"))
     Set CreateInput = Temp
 End Function
 
@@ -50,7 +50,7 @@ Private Function CreateAttackList() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +0.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set CreateAttackList = VBGLTextBox.Create(Temp, UpdateTextBox(UsedFont))
+    Set CreateAttackList = FactoryTextBox.Create(Temp, UpdateTextBox(UsedFont))
 End Function
 
 Private Function UpdateTextBox(FontLayout As VBGLFontLayout) As VBGLFont()

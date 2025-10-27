@@ -30,7 +30,7 @@ Public Property Get TileType()                            As String             
 Public Property Get Speed()                               As Single             : Let Speed               = p_Speed             : End Property
 Public Property Get Depth()                               As Single             : Let Depth               = p_Depth             : End Property
 
-Public Function Create(Rng As Range) As TileDefinition
+Public Function Create(ByVal Rng As Range) As TileDefinition
     Set Create = New TileDefinition
     With Create
         .Number     = Rng.Offset(0, 0).Value

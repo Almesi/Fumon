@@ -3,11 +3,13 @@ Attribute VB_Name = "GameGraphicsMessage"
 
 Option Explicit
 
-Public MessageBox As VBGLTextBox
+Private MessageBox As VBGLTextBox
 
-Public Sub SetUpMessageGraphics()
-    Set MessageBox = CreateMessageBox()
-End Sub
+Public Function SetUpMessageGraphics() As VBGLRenderObject
+    Set MessageBox           = CreateMessageBox()
+    Set SetUpMessageGraphics = VBGLRenderObject.Create(New VBGLGeneralInput, CurrentContext.CurrentFrame())
+    Call SetUpMessageGraphics.AddDrawable(MessageBox)
+End Function
 
 Public Sub UpdateMessage(ByVal Name As String, ByVal Text As String)
     MessageBox.Font(0).Text = Name & vbCrLf
@@ -19,7 +21,7 @@ Public Function MessageBoxInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Call Temp.AddKeyUp(27, VBGLCallable.Create(Nothing , "EscapeTextBox"      , vbMethod, 0, True))
+    Call Temp.AddKeyUp(27, ConvertCallable("EscapeTextBox(True)"))
     Set MessageBoxInput = Temp
 End Function
 
@@ -31,7 +33,7 @@ Private Function CreateMessageBox() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +1.0!)
-    Set CreateMessageBox = VBGLTextBox.Create(Temp, UpdateTextBox(UsedFont))
+    Set CreateMessageBox = FactoryTextBox.Create(Temp, UpdateTextBox(UsedFont))
 End Function
 
 Private Function UpdateTextBox(ByVal FontLayout As VBGLFontLayout) As VBGLFont()

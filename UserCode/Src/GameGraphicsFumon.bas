@@ -5,11 +5,11 @@ Option Explicit
 
 Private FumonList As VBGLTextBox
 
-Public Sub SetUpFumonGraphics()
-    Set FumonList = CreateFumonList
-    FumonRenderObject.Inputt = CreateInput()
-    Call FumonRenderObject.AddDrawable(FumonList)
-End Sub
+Public Function SetUpFumonGraphics() As VBGLRenderObject
+    Set FumonList = CreateFumonList()
+    Set SetUpFumonGraphics = VBGLRenderObject.Create(CreateInput(), CurrentContext.CurrentFrame())
+    Call SetUpFumonGraphics.AddDrawable(FumonList)
+End Function
 
 Public Sub UpdateFumon(ByVal Index As Long)
     Dim i As Long
@@ -30,22 +30,22 @@ Private Function CreateInput() As VBGLIInput
     Set Temp = New VBGLGeneralInput
 
     Dim SelectedFumon As VBGLCallable
-    Set SelectedFumon = VBGLCallable.Create(MeFighter.FightBase.Fumons, "Selected", vbGet, -1)
+    Set SelectedFumon = ConvertCallable("$0.Selected()", MeFighter.FightBase.Fumons)
 
-    Call Temp.AddKeyUp(Asc("1")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 0))
-    Call Temp.AddKeyUp(Asc("2")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 1))
-    Call Temp.AddKeyUp(Asc("3")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 2))
-    Call Temp.AddKeyUp(Asc("4")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 3))
-    Call Temp.AddKeyUp(Asc("5")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 4))
-    Call Temp.AddKeyUp(Asc("6")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 5))
-    Call Temp.AddKeyUp(Asc("7")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 6))
-    Call Temp.AddKeyUp(Asc("8")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, 7))
-    Call Temp.AddKeyUp(Asc(" ")     , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentMove"     , vbMethod, 0, FightMove.FightMoveChangeFumon))
-    Call Temp.AddKeyUp(Asc(" ")     , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentValue"    , vbMethod, 0, SelectedFumon))
-    Call Temp.AddKeyUp(Asc("0")     , VBGLCallable.Create(Nothing              , "UpdateFumon"        , vbMethod, 0, SelectedFumon))
-    Call Temp.AddKeyUp(Asc(" ")     , VBGLCallable.Create(Nothing              , "RemoveRenderObject" , vbMethod, -1))
-    Call Temp.AddKeyUp(27           , VBGLCallable.Create(Nothing              , "RemoveRenderObject" , vbMethod, -1))
-    Call Temp.AddKeyUp(Asc("a")     , VBGLCallable.Create(Nothing              , "AddRenderObject"    , vbMethod, 0, AttackRenderObject))
+    Call Temp.AddKeyUp(Asc("1")     , ConvertCallable("UpdateFumon(0)"))
+    Call Temp.AddKeyUp(Asc("2")     , ConvertCallable("UpdateFumon(1)"))
+    Call Temp.AddKeyUp(Asc("3")     , ConvertCallable("UpdateFumon(2)"))
+    Call Temp.AddKeyUp(Asc("4")     , ConvertCallable("UpdateFumon(3)"))
+    Call Temp.AddKeyUp(Asc("5")     , ConvertCallable("UpdateFumon(4)"))
+    Call Temp.AddKeyUp(Asc("6")     , ConvertCallable("UpdateFumon(5)"))
+    Call Temp.AddKeyUp(Asc("7")     , ConvertCallable("UpdateFumon(6)"))
+    Call Temp.AddKeyUp(Asc("8")     , ConvertCallable("UpdateFumon(7)"))
+    Call Temp.AddKeyUp(Asc(" ")     , ConvertCallable("$0.LetCurrentMove($1)"  , MeFighter.FightBase, FightMove.FightMoveChangeFumon))
+    Call Temp.AddKeyUp(Asc(" ")     , ConvertCallable("$0.LetCurrentValue($1)" , MeFighter.FightBase, SelectedFumon))
+    Call Temp.AddKeyUp(Asc("0")     , ConvertCallable("UpdateFumon($0)"        , SelectedFumon))
+    Call Temp.AddKeyUp(Asc(" ")     , ConvertCallable("RemoveRenderObject()"))
+    Call Temp.AddKeyUp(27           , ConvertCallable("RemoveRenderObject()"))
+    Call Temp.AddKeyUp(Asc("a")     , ConvertCallable("AddRenderObject($0)"    , AttackRenderObject))
 
     Set CreateInput = Temp
 End Function
@@ -58,7 +58,7 @@ Private Function CreateFumonList() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +0.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set CreateFumonList = VBGLTextBox.Create(Temp, UpdateTextBox(UsedFont))
+    Set CreateFumonList = FactoryTextBox.Create(Temp, UpdateTextBox(UsedFont))
 End Function
 
 Private Function UpdateTextBox(FontLayout As VBGLFontLayout) As VBGLFont()

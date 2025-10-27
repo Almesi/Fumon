@@ -12,15 +12,16 @@ Option Explicit
 
 
 Public Function Offset() As Long
-    Offset = 4
+    Offset = 5
 End Function
 
-Public Sub Assign(ByVal Rng As Range, ByVal Origin As Object)
+Public Sub Assign(ByVal Rng As Range, ByVal Origin As Object, ByVal Scripts As PropCollection)
     If TypeName(Origin) = "HumanPlayer" Then
         Origin.Beaten = New PropCollection
         Origin.Quests = New PropCollection
     ElseIf TypeName(Origin) = "ComPlayer" Then
-        Origin.Script       = FactoryServer.Scripts.ObjectByName(Rng.Offset(0, 0).Value)
+        Origin.Script       = Scripts.ObjectByName(Rng.Offset(0, 0).Value)
         Origin.ScriptValues = Rng.Offset(0, 1).Value
     End If
+    ' Offset 5 is Textureindex needed for initializing same texture for players
 End Sub

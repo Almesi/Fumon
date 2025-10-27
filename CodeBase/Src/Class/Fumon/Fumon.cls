@@ -49,10 +49,10 @@ Public Property Get CurrentInitiative()            As Range            : Set Cur
 Public Property Get Attacks()                      As Attacks          : Set Attacks             = p_Attacks            : End Property
 
 
-Public Function Create(Rng As Range) As Fumon
+Public Function Create(ByVal Rng As Range, ByVal Definitions As PropCollection) As Fumon
     Set Create = New Fumon
     With Create
-        .Definition        = FactoryServer.FumonDefinition(Rng.Offset(0, 0).Value)
+        .Definition        = Definitions.Object(Rng.Offset(0, 0).Value)
         .Expirience        = Rng.Offset(0, 1)
         .CurrentHealth     = Rng.Offset(0, 2)
         .CurrentAttack     = Rng.Offset(0, 3)

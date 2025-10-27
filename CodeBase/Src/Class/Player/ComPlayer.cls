@@ -35,10 +35,10 @@ Public Property Get ScriptValues()                        As String             
 
 
 '==========IFighter==========
-Private Property Get IFighter_Number()  As Range  : Set IPlayer_Number       = PlayerBase.Number : End Property
-Private Property Get IFighter_Name()    As Range  : Set IPlayer_Name         = PlayerBase.Name   : End Property
-Private Property Get IFighter_Fumons()  As Fumons : Set IPlayer_Fumons       = FightBase.Fumons  : End Property
-Private Property Get IFighter_Items()   As Items  : Set IPlayer_Items        = FightBase.Items   : End Property
+Private Property Get IFighter_Number()  As Range  : Set IFighter_Number       = PlayerBase.Number : End Property
+Private Property Get IFighter_Name()    As Range  : Set IFighter_Name         = PlayerBase.Name   : End Property
+Private Property Get IFighter_Fumons()  As Fumons : Set IFighter_Fumons       = FightBase.Fumons  : End Property
+Private Property Get IFighter_Items()   As Items  : Set IFighter_Items        = FightBase.Items   : End Property
 
 Private Property Get IFighter_PlayerBase() As PlayerBase
     Set IFighter_PlayerBase = p_PlayerBase
@@ -57,6 +57,9 @@ End Sub
 
 
 '==========IPlayer==========
+Private Property Get IPlayer_Number()  As Range  : Set IPlayer_Number       = PlayerBase.Number : End Property
+Private Property Get IPlayer_Name()    As Range  : Set IPlayer_Name         = PlayerBase.Name   : End Property
+
 Private Property Get IPlayer_PlayerBase() As PlayerBase
     Set IPlayer_PlayerBase = p_PlayerBase
 End Property
@@ -66,15 +69,15 @@ Private Property Get IPlayer_MoveBase() As MoveBase
 End Property
 
 Private Sub IPlayer_Teleport(ByVal x As Long, ByVal y As Long)
-    Call MoveBase.Teleport(PlayerBase.Number.Value, x, y)
+    Call MoveBase.Teleport(x, y)
 End Sub
 
 Private Sub IPlayer_Move(ByVal x As Long, ByVal y As Long)
-    Call MoveBase.Move(PlayerBase.Number.Value, x, y)
+    Call MoveBase.Move(x, y)
 End Sub
 
 Private Sub IPlayer_MovePath(ByRef x() As Long, ByRef y() As Long)
-    Call MoveBase.MovePath(PlayerBase.Number.Value, x, y)
+    Call MoveBase.MovePath(x, y)
 End Sub
 
 Private Sub IPlayer_Look(ByVal Direction As XlDirection)
@@ -91,7 +94,7 @@ End Function
 
 
 '==========Public==========
-Public Function Create(ByVal Pointer As Range) As ComPlayer
+Public Function Create(ByVal Pointer As Range, ByVal FumonDefinitions As PropCollection, ByVal ItemDefinitions As PropCollection, ByVal GameMaps As PropCollection, ByVal Scripts As PropCollection) As ComPlayer
     Set Create = New ComPlayer
     Dim TempFumons      As Fumons     : Set TempFumons     = New Fumons
     Dim TempItems       As Items      : Set TempItems      = New Items
@@ -100,9 +103,9 @@ Public Function Create(ByVal Pointer As Range) As ComPlayer
     Dim TempFightBase   As FightBase  : Set TempFightBase  = New FightBase
     With Create
         .PlayerBase        = TempPlayerBase.Create(Pointer.Offset(0, 0))
-        Call SpecificBase.Assign(Pointer.Offset(0, .PlayerBase.Offset), Create)
-        .MoveBase          = TempMoveBase.Create(Pointer.Offset(0, SpecificBase.Offset + .PlayerBase.Offset))
-        .FightBase         = TempFightBase.Create(Pointer.Offset(0, SpecificBase.Offset + .PlayerBase.Offset + .MoveBase.Offset))
+        Call SpecificBase.Assign(Pointer.Offset(0, .PlayerBase.Offset), Create, Scripts)
+        .MoveBase          = TempMoveBase.Create(.PlayerBase.Number.Value, Pointer.Offset(0, SpecificBase.Offset + .PlayerBase.Offset), GameMaps)
+        .FightBase         = TempFightBase.Create(Pointer.Offset(0, SpecificBase.Offset + .PlayerBase.Offset + .MoveBase.Offset), FumonDefinitions, ItemDefinitions)
     End With
 End Function
 

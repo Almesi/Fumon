@@ -27,7 +27,7 @@ Public Property Let Tile(ByVal y As Long, ByVal x As Long, ByVal n_Tile As Tile)
     Set p_Tiles(y, x) = n_Tile
 End Property
 
-Public Function Create(ByVal Pointer As Range, ByVal Rows As Long, ByVal Columns As Long) As Tiles
+Public Function Create(ByVal Pointer As Range, ByVal Rows As Long, ByVal Columns As Long, ByVal TileDefinitions As PropCollection) As Tiles
     Dim y As Long, x As Long
     Set Create = New Tiles
     Dim Temp() As Tile
@@ -36,7 +36,7 @@ Public Function Create(ByVal Pointer As Range, ByVal Rows As Long, ByVal Columns
     With Create
         For y = 0 To Rows
             For x = 0 To Columns
-                Set Temp(y, x) = TempTile.Create(Pointer.Offset(y, x))
+                Set Temp(y, x) = TempTile.Create(Pointer.Offset(y, x), TileDefinitions)
             Next x
         Next y
         .Tiles = Temp

@@ -10,6 +10,11 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
+Public Property Get Number()  As Range
+End Property
+Public Property Get Name()    As Range
+End Property
+
 Public Property Get PlayerBase() As PlayerBase
 End Property
 

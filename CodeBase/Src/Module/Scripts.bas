@@ -3,19 +3,39 @@ Attribute VB_Name = "Scripts"
 
 Option Explicit
 
+Public Function RangeCount(ByVal Rng As Range, ByVal Direction As XlDirection) As Long
+    Dim Result As Long
+    Result = -1
+    Select Case Direction
+        Case xlUp    : If Rng.Offset(-1, 0).Value = Empty Then Result = 0
+        Case xlLeft  : If Rng.Offset(0, -1).Value = Empty Then Result = 0
+        Case xlDown  : If Rng.Offset(+1, 0).Value = Empty Then Result = 0
+        Case xlRight : If Rng.Offset(0, +1).Value = Empty Then Result = 0
+    End Select
+    If Result <> 0 Then
+        Select Case Direction
+            Case xlUp  , xlDown  : Result = Rng.End(Direction).Row    - Rng.Row
+            Case xlLeft, xlRight : Result = Rng.End(Direction).Column - Rng.Column
+        End Select
+    End If
+    RangeCount = Result
+End Function
 
+Public Function MeGameMap() As GameMap
+    Set MeGameMap = MePlayer.MoveBase.Map
+End Function
 
 Public Sub Say(ByVal Name As String, ByVal Message As String) 
     Dim PreviousInput As VBGLIInput
     Call UpdateMessage(Name, Message)
-    Set PreviousInput = CurrentRenderObject.Inputt
-    CurrentRenderObject.Inputt = MessageBoxInput
-    Call CurrentRenderObject.AddDrawable(MessageBox)
+    Set PreviousInput = CurrentRenderObject.UserInput
+    CurrentRenderObject.UserInput = MessageBoxInput()
+    Call CurrentRenderObject.AddDrawable(MessageRenderObject)
     Do Until EscapeTextBox = True
         Call glutMainLoopEvent()
         Call CurrentRenderObject.Loopp
     Loop
-    CurrentRenderObject.Inputt = PreviousInput
+    CurrentRenderObject.UserInput = PreviousInput
     Call CurrentRenderObject.RemoveDrawable()
     Call EscapeTextBox(True)
 End Sub

@@ -12,10 +12,9 @@ Private FumonSprites As VBGLMesh
 Private FumonHealths As VBGLMesh
 Public  FumonTime    As VBGLMesh
 
-Public Sub SetUpFightGraphics()
+Public Function SetUpFightGraphics() As VBGLRenderObject
     Dim Temp As Fumon
     Set Temp = MeFighter.FightBase.Fumons.Fumon(0)
-    FightRenderObject.Inputt = CreateInput()
 
     Set FumonName1   = GetFumonName1()
     Set FumonName2   = GetFumonName2()
@@ -25,15 +24,19 @@ Public Sub SetUpFightGraphics()
     Set FumonSprites = GetFumonSprites(Temp, Temp)
     Set FumonHealths = GetFumonHealths(Temp, Temp)
     Set FumonTime    = GetFumonTimer(1, 1)
-    Call FightRenderObject.AddDrawable(Dialog)
-    Call FightRenderObject.AddDrawable(History)
-    Call FightRenderObject.AddDrawable(Buttons)
-    Call FightRenderObject.AddDrawable(FumonSprites)
-    Call FightRenderObject.AddDrawable(FumonName2)
-    Call FightRenderObject.AddDrawable(FumonName1)
-    Call FightRenderObject.AddDrawable(FumonHealths)
-    Call FightRenderObject.AddDrawable(FumonTime)
-End Sub
+
+    Set SetUpFightGraphics = VBGLRenderObject.Create(CreateInput(), CurrentContext.CurrentFrame())
+    With SetUpFightGraphics
+        Call .AddDrawable(Dialog)
+        Call .AddDrawable(History)
+        Call .AddDrawable(Buttons)
+        Call .AddDrawable(FumonSprites)
+        Call .AddDrawable(FumonName2)
+        Call .AddDrawable(FumonName1)
+        Call .AddDrawable(FumonHealths)
+        Call .AddDrawable(FumonTime)
+    End With
+End Function
 
 Public Sub UpdateFight(ByVal MyFight As Fight, Optional DialogText As String = Empty, Optional CurrentMove As String = Empty, Optional SelectedButton As Long = 0)
     Dim Fumon1 As Fumon : Set Fumon1 = MyFight.p1Fumon
@@ -70,7 +73,7 @@ Private Function UpdateSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As 
     Dim FumonsCount As Long: FumonsCount = 2
     ReDim Vertices(VertexSize * VertexCount  * FumonsCount - 1)
     ' xyz txty
-    With MeServer.Textures.ObjectByName("Fumons").SubTextureID(Fumon1.Definition.Name & "Back")
+    With GameTextures.ObjectByName("Fumons").SubTextureID(Fumon1.Definition.Name & "Back")
         Vertices(00) = -1: Vertices(01) = +0: Vertices(02) = 0: Vertices(03) = .GetX("TopLeft")     : Vertices(04) = .GetY("TopLeft")
         Vertices(05) = +0: Vertices(06) = +0: Vertices(07) = 0: Vertices(08) = .GetX("TopRight")    : Vertices(09) = .GetY("TopRight")
         Vertices(10) = -1: Vertices(11) = -1: Vertices(12) = 0: Vertices(13) = .GetX("BottomLeft")  : Vertices(14) = .GetY("BottomLeft")
@@ -79,7 +82,7 @@ Private Function UpdateSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As 
         Vertices(25) = -1: Vertices(26) = -1: Vertices(27) = 0: Vertices(28) = .GetX("BottomLeft")  : Vertices(29) = .GetY("BottomLeft")
     End With
 
-    With MeServer.Textures.ObjectByName("Fumons").SubTextureID(Fumon2.Definition.Name & "Front")
+    With GameTextures.ObjectByName("Fumons").SubTextureID(Fumon2.Definition.Name & "Front")
         Vertices(30) = +0: Vertices(31) = +1: Vertices(32) = 0: Vertices(33) = .GetX("TopLeft")     : Vertices(34) = .GetY("TopLeft")
         Vertices(35) = +1: Vertices(36) = +1: Vertices(37) = 0: Vertices(38) = .GetX("TopRight")    : Vertices(39) = .GetY("TopRight")
         Vertices(40) = +0: Vertices(41) = +0: Vertices(42) = 0: Vertices(43) = .GetX("BottomLeft")  : Vertices(44) = .GetY("BottomLeft")
@@ -149,10 +152,10 @@ Private Function CreateInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Call Temp.AddKeyUp(Asc("f") , VBGLCallable.Create(Nothing              , "AddRenderObject"    , vbMethod, +0 , FumonRenderObject))
-    Call Temp.AddKeyUp(Asc("i") , VBGLCallable.Create(Nothing              , "AddRenderObject"    , vbMethod, +0 , InventoryRenderObject))
-    Call Temp.AddKeyUp(Asc("r") , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentMove"     , vbMethod, +0 , FightMove.FightMoveFlee))
-    Call Temp.AddKeyUp(Asc("a") , VBGLCallable.Create(Nothing              , "AddRenderObject"    , vbMethod, +0 , AttackRenderObject))
+    Call Temp.AddKeyUp(Asc("f") , ConvertCallable("AddRenderObject($0)", FumonRenderObject))
+    Call Temp.AddKeyUp(Asc("i") , ConvertCallable("AddRenderObject($0)", InventoryRenderObject))
+    Call Temp.AddKeyUp(Asc("r") , ConvertCallable("$0.LetCurrentMove($1)", MeFighter.FightBase, FightMove.FightMoveFlee))
+    Call Temp.AddKeyUp(Asc("a") , ConvertCallable("AddRenderObject($0)", AttackRenderObject))
     Set CreateInput = Temp
 End Function
 
@@ -164,7 +167,7 @@ Private Function GetFumonName1() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -0.2!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +0.0!, -0.2!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set GetFumonName1 = VBGLTextBox.CreateFromText(Temp, "FUMON2", UsedFont)
+    Set GetFumonName1 = FactoryTextBox.CreateFromText(Temp, "FUMON2", UsedFont)
 End Function
 Private Function GetFumonName2() As VBGLTextBox
     Dim Temp As VBGLProperties
@@ -174,7 +177,7 @@ Private Function GetFumonName2() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , +0.0!, +0.8!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +1.0!, +0.8!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set GetFumonName2 = VBGLTextBox.CreateFromText(Temp, "FUMON1", UsedFont)
+    Set GetFumonName2 = FactoryTextBox.CreateFromText(Temp, "FUMON1", UsedFont)
 End Function
 Private Function GetDialog() As VBGLTextBox
     Dim Temp As VBGLProperties
@@ -184,7 +187,7 @@ Private Function GetDialog() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +0.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set GetDialog = VBGLTextBox.CreateFromText(Temp, "DIALOG", UsedFont)
+    Set GetDialog = FactoryTextBox.CreateFromText(Temp, "DIALOG", UsedFont)
 End Function
 Private Function GetHistory() As VBGLTextBox
     Dim Temp As VBGLProperties
@@ -194,7 +197,7 @@ Private Function GetHistory() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , +0.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set GetHistory = VBGLTextBox.CreateFromText(Temp, " ", UsedFont)
+    Set GetHistory = FactoryTextBox.CreateFromText(Temp, " ", UsedFont)
 End Function
 Private Function GetButtons() As VBGLTextBox
 
@@ -216,14 +219,14 @@ Private Function GetButtons() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , -0.8!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set GetButtons = VBGLTextBox.Create(Temp, Fonts)
+    Set GetButtons = FactoryTextBox.Create(Temp, Fonts)
 End Function
 Private Function GetFumonSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As VBGLMesh
     Dim Data As IDataSingle
     Set Data = VBGLData.CreateSingle(UpdateSprites(Fumon1, Fumon2))
 
     Set GetFumonSprites = VBGLMesh.Create(VBGLPrCoShaderXYZTxTy, VBGLPrCoLayoutXYZTxTy, Data)
-    Call GetFumonSprites.AddTexture(MeServer.Textures.ObjectByName("Fumons"))
+    Call GetFumonSprites.AddTexture(GameTextures.ObjectByName("Fumons"))
 End Function
 Private Function GetFumonHealths(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As VBGLMesh
     Dim Data As IDataSingle
@@ -247,7 +250,7 @@ Private Function HistoryText(ByVal MyFight As Fight, ByVal Player As IFighter) A
         Case "Item"   : Value = Obj.Name
     End Select
     Dim PlayerName As String
-    PlayerName = Player.PlayerBase.Name.Value
+    PlayerName = Player.Name.Value
     Select Case Player.FightBase.GetCurrentMove
         Case FightMove.FightMoveAttack      : HistoryText = PlayerName & " used Attack " & Value
         Case FightMove.FightMoveFlee        : HistoryText = PlayerName & " tried to flee"

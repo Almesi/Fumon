@@ -5,11 +5,11 @@ Option Explicit
 
 Private InventoryList As VBGLTextBox
 
-Public Sub SetUpInventoryGraphics()
-    Set InventoryList = CreateInventoryList
-    InventoryRenderObject.Inputt = CreateInput()
-    Call InventoryRenderObject.AddDrawable(InventoryList)
-End Sub
+Public Function SetUpInventoryGraphics() As VBGLRenderObject
+    Set InventoryList = CreateInventoryList()
+    Set SetUpInventoryGraphics = VBGLRenderObject.Create(CreateInput(), CurrentContext.CurrentFrame())
+    Call SetUpInventoryGraphics.AddDrawable(InventoryList)
+End Function
 
 Public Sub UpdateInventory(ByVal Offset As Long)
     Dim i As Long
@@ -32,14 +32,14 @@ Private Function CreateInput() As VBGLIInput
     Set Temp = New VBGLGeneralInput
 
     Dim ItemCallback As VBGLCallable
-    Set ItemCallback = VBGLCallable.Create(MeFighter.FightBase.Items, "SelectedItem", vbGet, -1)
+    Set ItemCallback = ConvertCallable("$0.SelectedItem()", MeFighter.FightBase.Items)
 
-    Call Temp.AddKeyUp(Asc("w") , VBGLCallable.Create(Nothing              , "UpdateInventory"    , vbMethod, 0, +1))
-    Call Temp.AddKeyUp(Asc("s") , VBGLCallable.Create(Nothing              , "UpdateInventory"    , vbMethod, 0, -1))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentMove"     , vbLet   , 0, FightMove.FightMoveItem))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(MeFighter.FightBase  , "LetCurrentValue"    , vbLet   , 0, ItemCallback))
-    Call Temp.AddKeyUp(Asc(" ") , VBGLCallable.Create(Nothing              , "RemoveRenderObject" , vbMethod, -1))
-    Call Temp.AddKeyUp(27       , VBGLCallable.Create(Nothing              , "RemoveRenderObject" , vbMethod, -1))
+    Call Temp.AddKeyUp(Asc("w") , ConvertCallable("UpdateInventory(+1)"))
+    Call Temp.AddKeyUp(Asc("s") , ConvertCallable("UpdateInventory(-1)"))
+    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("$0.LetCurrentMove($1)"  , MeFighter.FightBase, FightMove.FightMoveItem))
+    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("$0.LetCurrentValue($1)" , MeFighter.FightBase, ItemCallback))
+    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("RemoveRenderObject()"))
+    Call Temp.AddKeyUp(27       , ConvertCallable("RemoveRenderObject()"))
     Set CreateInput = Temp
 End Function
 
@@ -51,7 +51,7 @@ Private Function CreateInventoryList() As VBGLTextBox
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +0.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set CreateInventoryList = VBGLTextBox.Create(Temp, UpdateTextBox(UsedFont))
+    Set CreateInventoryList = FactoryTextBox.Create(Temp, UpdateTextBox(UsedFont))
 End Function
 
 Private Function UpdateTextBox(FontLayout As VBGLFontLayout) As VBGLFont()

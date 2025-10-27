@@ -25,10 +25,10 @@ Public Property Get PlayerBase()                  As PlayerBase  : Set PlayerBas
 Public Property Get FightBase()                   As FightBase   : Set FightBase    = p_FightBase  : End Property
 
 '==========IFighter==========
-Private Property Get IFighter_Number()  As Range  : Set IPlayer_Number       = PlayerBase.Number : End Property
-Private Property Get IFighter_Name()    As Range  : Set IPlayer_Name         = PlayerBase.Name   : End Property
-Private Property Get IFighter_Fumons()  As Fumons : Set IPlayer_Fumons       = FightBase.Fumons  : End Property
-Private Property Get IFighter_Items()   As Items  : Set IPlayer_Items        = FightBase.Items   : End Property
+Private Property Get IFighter_Number()  As Range  : Set IFighter_Number       = PlayerBase.Number : End Property
+Private Property Get IFighter_Name()    As Range  : Set IFighter_Name         = PlayerBase.Name   : End Property
+Private Property Get IFighter_Fumons()  As Fumons : Set IFighter_Fumons       = FightBase.Fumons  : End Property
+Private Property Get IFighter_Items()   As Items  : Set IFighter_Items        = FightBase.Items   : End Property
 
 Private Property Get IFighter_PlayerBase() As PlayerBase
     Set IFighter_PlayerBase = p_PlayerBase
@@ -45,11 +45,18 @@ Private Sub IFighter_DoAI(ByVal MyFight As Fight, ByVal OtherPlayer As IFighter)
     Call ComAI(OtherPlayer)
 End Sub
 
-Public Function Create(ByVal Pointer As Range) As WildPlayer
+Public Function Create(ByVal Pointer As Range, ByVal FumonDefinitions As PropCollection, ByVal ItemDefinitions As PropCollection) As WildPlayer
     Set Create = New WildPlayer
+    Dim TempFumons      As Fumons     : Set TempFumons     = New Fumons
+    Dim TempItems       As Items      : Set TempItems      = New Items
+    Dim TempPlayerBase  As PlayerBase : Set TempPlayerBase = New PlayerBase
+    Dim TempMoveBase    As MoveBase   : Set TempMoveBase   = New MoveBase
+    Dim TempFightBase   As FightBase  : Set TempFightBase  = New FightBase
     With Create
-        .PlayerBase        = PlayerBase.Create(Pointer.Offset(0, 0))
-        .FightBase         = PlayerBase.Create(Pointer.Offset(0, PlayerBase.Offset + MoveBase.Offset))
+        .PlayerBase        = TempPlayerBase.Create(Pointer.Offset(0, 0))
+        Call SpecificBase.Assign(Pointer.Offset(0, .PlayerBase.Offset), Create)
+        .MoveBase          = TempMoveBase.Create(Pointer.Offset(0, SpecificBase.Offset + .PlayerBase.Offset))
+        .FightBase         = TempFightBase.Create(Pointer.Offset(0, SpecificBase.Offset + .PlayerBase.Offset + .MoveBase.Offset), FumonDefinitions, ItemDefinitions)
     End With
 End Function
 

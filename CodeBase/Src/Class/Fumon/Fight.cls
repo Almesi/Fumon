@@ -48,8 +48,8 @@ Public Function Create(ByVal Start As Range, ByVal Player1 As IFighter, ByVal Pl
     Dim i As Long
     Dim Rng As Range
 
-    Dim p1Player As Long : p1Player = Player1.PlayerBase.Number.Value
-    Dim p2Player As Long : p2Player = Player2.PlayerBase.Number.Value
+    Dim p1Player As Long : p1Player = Player1.Number.Value
+    Dim p2Player As Long : p2Player = Player2.Number.Value
     
     Set Rng = GetActiveFight(Start, p1Player, p2Player)
 
@@ -95,7 +95,7 @@ Public Sub Fight(ByVal FightCaller As IFighter, ByRef WinnerPlayer As IFighter, 
     Loop
     Call RemoveRenderObject()
     If Winner.Formula <> Empty Then
-        Set WinnerPlayer = MeServer.Player(Winner.Value)
+        Set WinnerPlayer = GetPlayer(Winner.Value)
         Set LoserPlayer  = Loser
     Else
         'Set Fight = 'FightCaller lost
@@ -192,10 +192,10 @@ End Function
 Private Sub CheckWinner()
     If Winner.Value <> Empty Then Exit Sub
     If IsNothing(p1Fighter.FightBase.Fumons.FirstAlive) Then
-        Winner.Value = p2Fighter.PlayerBase.Number.Value
+        Winner.Value = p2Fighter.Number.Value
     End If
     If IsNothing(p2Fighter.FightBase.Fumons.FirstAlive) Then
-        Winner.Value = p1Fighter.PlayerBase.Number.Value
+        Winner.Value = p1Fighter.Number.Value
     End If
 End Sub
 
@@ -231,14 +231,6 @@ End Function
 
 
 
-Private Sub Class_Terminate()
-    If Not p_p1            Is Nothing Then p_p1.Clear
-    If Not p_p2            Is Nothing Then p_p2.Clear
-    If Not p_mon1          Is Nothing Then p_mon1.Clear
-    If Not p_mon2          Is Nothing Then p_mon2.Clear
-    If Not p_Winner        Is Nothing Then p_Winner.Clear
-End Sub
-
 Public Function p1Fighter() As IFighter
     Set p1Fighter = MeServer.Player(p1.Value)
 End Function
@@ -250,6 +242,14 @@ Public Function p1Fumon() As Fumon
 End Function
 Public Function p2Fumon() As Fumon
     Set p2Fumon = p2Fighter.FightBase.Fumons.Fumon(mon2.Value)
+End Function
+
+Private Function GetPlayer(ByVal Index As Long) As IFighter
+    If p1Fighter.Number.Value = Index Then
+        Set GetPlayer = p1Fighter
+    Else
+        Set GetPlayer = p2Fighter
+    End If
 End Function
 
 Private Function GetFumon(ByVal Player As IFighter)
@@ -292,11 +292,19 @@ Private Sub GetMovesHelp(ByVal MyPlayer As IFighter, ByVal OtherPlayer As IFight
             If OtherPlayer.FightBase.GetCurrentMove <> FightMove.FightMoveNothing Then
                 Exit Do
             End If
-            Call UpdateTimer(Me, Diff / 60)
+            Call UpdateTimer(MyPlayer, Diff / 60)
             Call CurrentRenderObject.Loopp()
         Loop
         GetFinished(OtherPlayer).Value = 1
     Else
         Call OtherPlayer.DoAI(Me, MyPlayer)
     End If
+End Sub
+
+Private Sub Class_Terminate()
+    If Not p_p1            Is Nothing Then p_p1.Clear
+    If Not p_p2            Is Nothing Then p_p2.Clear
+    If Not p_mon1          Is Nothing Then p_mon1.Clear
+    If Not p_mon2          Is Nothing Then p_mon2.Clear
+    If Not p_Winner        Is Nothing Then p_Winner.Clear
 End Sub

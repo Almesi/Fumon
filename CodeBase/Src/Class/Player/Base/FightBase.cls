@@ -45,15 +45,15 @@ Public Function GetCurrentValue(ByVal MyFight As Fight, ByVal MyPlayer As IFight
     End Select
 End Function
 
-Public Function Create(ByVal Rng As Range) As FightBase
+Public Function Create(ByVal Rng As Range, ByVal FumonDefinitions As PropCollection, ByVal ItemDefinitions As PropCollection) As FightBase
     Set Create = New FightBase
     Dim TempFumons As Fumons: Set TempFumons = New Fumons
     Dim TempItems  As Items : Set TempItems  = New Items
     With Create
         .CurrentMove   = Rng.Offset(0, 0)
         .CurrentValue  = Rng.Offset(0, 1)
-        .Fumons        = TempFumons.Create(Rng.Offset(0, 2))
-        .Items         = TempItems.Create(Rng.Offset(0, 100))
+        .Fumons        = TempFumons.Create(Rng.Offset(0, 2), FumonDefinitions)
+        .Items         = TempItems.Create(Rng.Offset(0, 100), ItemDefinitions)
     End With
 End Function
 

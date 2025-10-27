@@ -12,8 +12,8 @@ Option Explicit
 
 
 Private Type Thread
-    Always()        As VBGLCallable
-    Once()          As VBGLCallable
+    Always()        As std_Callable
+    Once()          As std_Callable
     AfterMinutes    As Long
     LastTime        As Long
     Index           As Long
@@ -30,7 +30,7 @@ Public Function Create() As UpdateQueue
     Set Create = New UpdateQueue
 End Function
 
-Public Sub AddThread(ByRef Always() As VBGLCallable, ByRef Once() As VBGLCallable, ByVal AfterMinutes As Long)
+Public Sub AddThread(ByRef Always() As std_Callable, ByRef Once() As std_Callable, ByVal AfterMinutes As Long)
     Dim NewSize As Long
     NewSize = Frames.Size + 1
     ReDim Preserve Frames.Threads(NewSize)
@@ -41,18 +41,18 @@ Public Sub AddThread(ByRef Always() As VBGLCallable, ByRef Once() As VBGLCallabl
     Frames.Size = NewSize
 End Sub
 
-Public Sub AddAlways(ByVal n_Callable As VBGLCallable, Optional ByVal Thread As Long = 0)
+Public Sub AddAlways(ByVal n_Callable As std_Callable, Optional ByVal Thread As Long = 0)
     Call VBGLAdd(Frames.Threads(Thread).Always, n_Callable)
 End Sub
 
-Public Sub AddOnce(ByVal n_Callable As VBGLCallable, Optional ByVal Thread As Long = 0)
+Public Sub AddOnce(ByVal n_Callable As std_Callable, Optional ByVal Thread As Long = 0)
     Call VBGLAdd(Frames.Threads(Thread).Once, n_Callable)
 End Sub
 
-Public Sub UpdateForEach(ByRef VBGLCallables() As VBGLCallable)
+Public Sub UpdateForEach(ByRef std_Callables() As std_Callable)
     Dim i As Long
-    For i = 0 To USize(VBGLCallables)
-        Call VBGLCallables(i).Run
+    For i = 0 To USize(std_Callables)
+        Call std_Callables(i).Run
         Call UpdateScreen()
     Next i
 End Sub
@@ -84,14 +84,14 @@ Public Sub UpdateScreen()
 End Sub
 
 Private Function RunAlways(ByRef Thread As Thread) As Variant
-    Call VBGLAssign(RunAlways, Thread.Always(Thread.Index).Handle())
+    Call VBGLAssign(RunAlways, Thread.Always(Thread.Index).Run())
     Thread.Index = Thread.Index + 1
     If Thread.Index > USize(Thread.Always) Then Thread.Index = 0
 End Function
 
 Private Function RunOnce(ByRef Thread As Thread) As Variant
     If USize(Thread.Once) = -1 Then Exit Function
-    Call VBGLAssign(Thread.Once, Thread.Once(0).Handle())
+    Call VBGLAssign(Thread.Once, Thread.Once(0).Run())
     Call VBGLArrayRemove(Thread.Once, 0)
 End Function
 

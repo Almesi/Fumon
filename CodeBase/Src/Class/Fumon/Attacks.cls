@@ -41,10 +41,10 @@ Public Property Let AttackRange(Index As Long, n_AttackRange As Range)
 End Property
 
 Public Property Get Attack(Index As Long) As Attack
-    Set Attack = FactoryServer.Attack(AttackRange(Index))
+    Set Attack = MeServer.Attack(AttackRange(Index).Value)
 End Property
 Public Property Let Attack(Index As Long, n_Attack As Attack)
-    FactoryServer.Attack(AttackRange(Index)) = n_Attack
+    MeServer.Attack(AttackRange(Index)) = n_Attack
 End Property
 
 Public Property Get SelectedAttack() As Attack

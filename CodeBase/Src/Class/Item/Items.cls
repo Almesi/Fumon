@@ -61,13 +61,13 @@ Public Sub AddItem(ByVal n_Item As Item)
     Call VBGLAdd(p_Items, n_Item)
 End Sub
 
-Public Function Create(Rng As Range) As Items
+Public Function Create(Rng As Range, ByVal ItemDefinitions As PropCollection) As Items
     Dim i As Long
     Set Create = New Items
     Dim Temp As Item: Set Temp = New Item
     With Create
         Do Until Rng.Offset(0, i).Formula = Empty
-            Call .AddItem(Temp.Create(FactoryServer.ItemDefinition(Rng.offset(0, i).Value), Rng.Offset(0, i + 1)))
+            Call .AddItem(Temp.Create(ItemDefinitions.Object(Rng.offset(0, i).Value), Rng.Offset(0, i + 1)))
             i = i + ItemCount
         Loop
     End With
