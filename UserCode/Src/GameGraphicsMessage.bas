@@ -21,8 +21,14 @@ Public Function MessageBoxInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Call Temp.AddKeyUp(27, ConvertCallable("EscapeTextBox(True)"))
+    Call Temp.AddKeyUp(27, CreateFixedCallable("EscapeMsgBox(True)"))
     Set MessageBoxInput = Temp
+End Function
+
+Public Function EscapeMsgBox(Optional ByVal Setter As Boolean = False) As Boolean
+    Static Value As Boolean
+    If Setter Then Value = Value Xor True
+    EscapeMsgBox = Value
 End Function
 
 Private Function CreateMessageBox() As VBGLTextBox

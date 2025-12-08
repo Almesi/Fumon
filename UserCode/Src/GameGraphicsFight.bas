@@ -5,7 +5,6 @@ Option Explicit
 
 Private FumonName1   As VBGLTextBox
 Private FumonName2   As VBGLTextBox
-Private Dialog       As VBGLTextBox
 Private History      As VBGLTextBox
 Private Buttons      As VBGLTextBox
 Private FumonSprites As VBGLMesh
@@ -14,11 +13,10 @@ Public  FumonTime    As VBGLMesh
 
 Public Function SetUpFightGraphics() As VBGLRenderObject
     Dim Temp As Fumon
-    Set Temp = MeFighter.FightBase.Fumons.Fumon(0)
+    Set Temp = MePlayer.FightBase.Fumons.Fumon(0)
 
     Set FumonName1   = GetFumonName1()
     Set FumonName2   = GetFumonName2()
-    Set Dialog       = GetDialog()
     Set History      = GetHistory()
     Set Buttons      = GetButtons()
     Set FumonSprites = GetFumonSprites(Temp, Temp)
@@ -27,7 +25,6 @@ Public Function SetUpFightGraphics() As VBGLRenderObject
 
     Set SetUpFightGraphics = VBGLRenderObject.Create(CreateInput(), CurrentContext.CurrentFrame())
     With SetUpFightGraphics
-        Call .AddDrawable(Dialog)
         Call .AddDrawable(History)
         Call .AddDrawable(Buttons)
         Call .AddDrawable(FumonSprites)
@@ -38,14 +35,25 @@ Public Function SetUpFightGraphics() As VBGLRenderObject
     End With
 End Function
 
-Public Sub UpdateFight(ByVal MyFight As Fight, Optional DialogText As String = Empty, Optional CurrentMove As String = Empty, Optional SelectedButton As Long = 0)
-    Dim Fumon1 As Fumon : Set Fumon1 = MyFight.p1Fumon
-    Dim Fumon2 As Fumon : Set Fumon2 = MyFight.p2Fumon
+Public Sub UpdateFight(ByVal MyFight As Fight, ByVal p1Moves As MoveDecision, ByVal p2Moves As MoveDecision, Optional DialogName As String = Empty, Optional DialogText As String = Empty)
+    Dim Fumon1 As Fumon
+    Dim Fumon2 As Fumon
+    Dim MyFighter As IPlayer
+
+    If MyFight.p2Fighter Is MePlayer Then
+        Set MyFighter = MyFight.p1Fighter
+        Set Fumon1 = MyFight.p2Fumon
+        Set Fumon2 = MyFight.p1Fumon
+    Else
+        Set MyFighter = MyFight.p2Fighter
+        Set Fumon1 = MyFight.p1Fumon
+        Set Fumon2 = MyFight.p2Fumon
+    End If
     FumonName1.Font(0).Text = Fumon1.Definition.Name
     FumonName2.Font(0).Text = Fumon2.Definition.Name
-    Dialog.Font(0).Text     = DialogText
+    If DialogName <> Empty Then Call Say(DialogName, DialogText)
     Dim Text As String
-    Text = HistoryText(MyFight, MyFight.p1Fighter) & vbCrLf & HistoryText(MyFight, MyFight.p2Fighter)
+    Text = HistoryText(p1Moves, MyFight.p1Fighter) & vbCrLf & HistoryText(p2Moves, MyFight.p2Fighter)
     History.Font(0).Text = Text
 
     Call History.UpdateData()
@@ -54,16 +62,14 @@ Public Sub UpdateFight(ByVal MyFight As Fight, Optional DialogText As String = E
 
     Dim i As Long
     Dim Color() As Single
-    ReDim Color(2)
+    ReDim Color(3)
     For i = 0 To 3
         Buttons.Font(i).FontColor = Color
     Next i
-    Color(1) = 1
-    Buttons.Font(SelectedButton).FontColor = Color
     
     Call FumonSprites.VAO.Buffer.Update(VBGLData.CreateSingle(UpdateSprites(Fumon1, Fumon2)))
     Call FumonHealths.VAO.Buffer.Update(VBGLData.CreateSingle(UpdateHealthBars(Fumon1, Fumon2)))
-    Call FumonTime.VAO.Buffer.Update(VBGLData.CreateSingle(UpdateFumonTimer(1, 1)))
+    Call FumonTime.VAO.Buffer.Update(VBGLData.CreateSingle(UpdateFumonTimer(MyFight, MyFighter.FightBase, 1, 1)))
 End Sub
 
 Private Function UpdateSprites(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) As Single()
@@ -122,15 +128,24 @@ Private Function UpdateHealthBars(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) 
     UpdateHealthBars = Vertices
 End Function
 
-Public Function UpdateFumonTimer(ByVal Time1 As Single, ByVal Time2 As Single) As Single()
+Public Function UpdateFumonTimer(ByVal MyFight As Fight, ByVal Fighter As FightBase, ByVal Time1 As Single, ByVal Time2 As Single) As Single()
     Dim Vertices() As Single
     'xy rgb
     Dim VertexSize  As Long: VertexSize  = 5
     Dim VertexCount As Long: VertexCount = 6
     Dim FumonsCount As Long: FumonsCount = 2
     ReDim Vertices(VertexSize * VertexCount  * FumonsCount - 1)
-    Dim Time1Offset As Single : Time1Offset = Time1 * 0.9
-    Dim Time2Offset As Single : Time2Offset = Time2 * 0.9
+    Dim Time1Offset As Single
+    Dim Time2Offset As Single
+    If IsSomething(MyFight) Then
+        If MyFight.p2Fighter.FightBase Is MePlayer.FightBase And MePlayer.FightBase Is Fighter Then
+            Time1Offset = Time2 * 0.9
+            Time2Offset = Time1 * 0.9
+        Else
+            Time1Offset = Time1 * 0.9
+            Time2Offset = Time2 * 0.9
+        End If
+    End If
     Vertices(00) = -1.0 : Vertices(01) = -0.0 - Time1Offset: Vertices(02) = Time1: Vertices(03) = 1 - Time1 : Vertices(04) = 0
     Vertices(05) = -0.9 : Vertices(06) = -0.0 - Time1Offset: Vertices(07) = Time1: Vertices(08) = 1 - Time1 : Vertices(09) = 0
     Vertices(10) = -1.0 : Vertices(11) = -0.9              : Vertices(12) = Time1: Vertices(13) = 1 - Time1 : Vertices(14) = 0
@@ -152,10 +167,12 @@ Private Function CreateInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Call Temp.AddKeyUp(Asc("f") , ConvertCallable("AddRenderObject($0)", FumonRenderObject))
-    Call Temp.AddKeyUp(Asc("i") , ConvertCallable("AddRenderObject($0)", InventoryRenderObject))
-    Call Temp.AddKeyUp(Asc("r") , ConvertCallable("$0.LetCurrentMove($1)", MeFighter.FightBase, FightMove.FightMoveFlee))
-    Call Temp.AddKeyUp(Asc("a") , ConvertCallable("AddRenderObject($0)", AttackRenderObject))
+    Call Temp.AddKeyUp(Asc("f") , CreateFixedCallable("AddDrawableToRenderObject($0, $1)", FumonRenderObject, FumonRenderObject.UserInput))
+    Call Temp.AddKeyUp(Asc("i") , CreateFixedCallable("AddDrawableToRenderObject($0, $1)", InventoryRenderObject, InventoryRenderObject.UserInput))
+     'Because object is range and therefore not scanned via std_AllCallables i have to create it manually
+    Call Temp.AddKeyUp(Asc("r") , std_Callable.Create(MePlayer.FightBase.CurrentMove, "Value", vbLet, 0).Bind(FightMove.FightMoveFlee).FixArgs(True))
+    Call Temp.AddKeyUp(Asc("a") , CreateFixedCallable("AddDrawableToRenderObject($0, $1)", AttackRenderObject, AttackRenderObject.UserInput))
+
     Set CreateInput = Temp
 End Function
 
@@ -178,16 +195,6 @@ Private Function GetFumonName2() As VBGLTextBox
     Call Temp.LetValueFamily("BottomRight*" , +1.0!, +0.8!, +0.0!)
     Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
     Set GetFumonName2 = FactoryTextBox.CreateFromText(Temp, "FUMON1", UsedFont)
-End Function
-Private Function GetDialog() As VBGLTextBox
-    Dim Temp As VBGLProperties
-    Set Temp = FactoryTextBoxProperties.Clone()
-    Call Temp.LetValueFamily("TopLeft*"     , -1.0!, +0.0!, +0.0!)
-    Call Temp.LetValueFamily("TopRight*"    , +0.0!, +0.0!, +0.0!)
-    Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
-    Call Temp.LetValueFamily("BottomRight*" , +0.0!, -1.0!, +0.0!)
-    Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set GetDialog = FactoryTextBox.CreateFromText(Temp, "DIALOG", UsedFont)
 End Function
 Private Function GetHistory() As VBGLTextBox
     Dim Temp As VBGLProperties
@@ -236,26 +243,33 @@ Private Function GetFumonHealths(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon) A
 End Function
 Private Function GetFumonTimer(ByVal Time1 As Single, ByVal Time2 As Single) As VBGLMesh
     Dim Data As IDataSingle
-    Set Data = VBGLData.CreateSingle(UpdateFumonTimer(Time1, Time2))
+    Set Data = VBGLData.CreateSingle(UpdateFumonTimer(Nothing, MePlayer.FightBase, Time1, Time2))
 
     Set GetFumonTimer = VBGLMesh.Create(VBGLPrCoShaderXYRGB, VBGLPrCoLayoutXYRGB, Data)
 End Function
-Private Function HistoryText(ByVal MyFight As Fight, ByVal Player As IFighter) As String
-    Dim Obj As Object
-    Set Obj = Player.FightBase.GetCurrentValue(MyFight, Player)
-    Dim Value As String
-    Select Case TypeName(Obj)
-        Case "Attack" : Value = Obj.Name
-        Case "Fumon"  : Value = Obj.Definition.Name
-        Case "Item"   : Value = Obj.Name
+Private Function HistoryText(ByVal MoveDec As MoveDecision, ByVal Player As IPlayer) As String
+    Dim Value As Variant
+    Dim Move As FightMove
+    If IsSomething(MoveDec) Then
+        Set Value = MoveDec.Value
+        Move = MoveDec.Move
+    Else
+        Move = FightMove.FightMoveNothing
+    End If
+
+    Dim Name As String
+    Select Case TypeName(Value)
+        Case "Attack" : Name = Value.Name
+        Case "Fumon"  : Name = Value.Definition.Name
+        Case "Item"   : Name = Value.Name
     End Select
     Dim PlayerName As String
-    PlayerName = Player.Name.Value
-    Select Case Player.FightBase.GetCurrentMove
-        Case FightMove.FightMoveAttack      : HistoryText = PlayerName & " used Attack " & Value
+    PlayerName = Player.PlayerBase.Name.Value
+    Select Case Move
+        Case FightMove.FightMoveAttack      : HistoryText = PlayerName & " used Attack " & Name
         Case FightMove.FightMoveFlee        : HistoryText = PlayerName & " tried to flee"
-        Case FightMove.FightMoveChangeFumon : HistoryText = PlayerName & " changed to Fumon " & Value
+        Case FightMove.FightMoveChangeFumon : HistoryText = PlayerName & " changed to Fumon " & Name
         Case FightMove.FightMoveNothing     : HistoryText = PlayerName & " skipped a turn"
-        Case FightMove.FightMoveItem        : HistoryText = PlayerName & " used Item " & Value
+        Case FightMove.FightMoveItem        : HistoryText = PlayerName & " used Item " & Name
     End Select
 End Function

@@ -27,8 +27,8 @@ End Function
 Private Function CreateInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
-    Call Temp.AddKeyUp(Asc("s"), ConvertCallable("AddRenderObject($0)", OverWorldRenderObject))
-    Call Temp.AddKeyUp(Asc("o"), ConvertCallable("AddRenderObject($0)", OptionsRenderObject))
-    Call Temp.AddKeyUp(27      , ConvertCallable("$0.LeaveMainLoop()", CurrentContext))
+    Call Temp.AddKeyUp(Asc("s"), CreateFixedCallable("AddRenderObject($0)", OverWorldRenderObject))
+    Call Temp.AddKeyUp(Asc("o"), CreateFixedCallable("AddRenderObject($0)", OptionsRenderObject))
+    Call Temp.AddKeyUp(27      , CreateFixedCallable("$0.LeaveMainLoop()", CurrentContext))
     Set CreateInput = Temp
 End Function

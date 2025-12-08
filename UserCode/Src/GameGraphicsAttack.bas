@@ -3,66 +3,53 @@ Attribute VB_Name = "GameGraphicsAttack"
 
 Option Explicit
 
-Private AttackList As VBGLTextBox
+Private AttackList As VBGLList
+Public UpdateAttack As std_Callable
 
 Public Function SetUpAttackGraphics() As VBGLRenderObject
-    Set AttackList = CreateAttackList()
-    Set SetUpAttackGraphics = VBGLRenderObject.Create(CreateInput(), CurrentContext.CurrentFrame())
+    Dim X              As Single       : Let X              = -0.75!
+    Dim Base           As std_Callable : Set Base           = CreateFixedCallable("$0.SelectedFumon.Attacks()", MePlayer.FightBase.Fumons)
+    Dim Texture        As VBGLTexture  : Set Texture        = GameTextures.ObjectByName("Attacks")
+    Dim TextObject     As std_Callable : Set TextObject     = CreateUnFixedCallable("$0.Attack($1).FullName()", Base, 0)
+    Dim NameObject     As std_Callable : Set NameObject     = CreateUnFixedCallable("$0.Attack($1).Name()", Base, 0)
+    Dim ColorObject    As std_Callable : Set ColorObject    = CreateUnFixedCallable("$0.Color($1.Attack($2).ElementType())", MeServer.ElementTypes, Base, 0)
+    Set AttackList = CreateList(Base.Run, X, Texture, TextObject, NameObject, ColorObject)
+
+    Dim UserInput As VBGLIInput
+    Set UserInput = CreateInput(Base, Texture, TextObject, NameObject, ColorObject)
+
+    Set SetUpAttackGraphics = VBGLRenderObject.Create(UserInput, LeftSideFrame)
     Call SetUpAttackGraphics.AddDrawable(AttackList)
 End Function
 
-Public Sub UpdateAttack(ByVal Index As Long)
-    Dim i As Long
-    Dim Color() As Single
-    ReDim Color(3)
-    MeFighter.FightBase.Fumons.FirstAlive.Attacks.Selected = Index
-    AttackList.Fonts = UpdateTextBox(UsedFont)
-    For i = 0 To MeFighter.FightBase.Fumons.FirstAlive.Attacks.AttackCount
-        AttackList.Font(i).FontColor = Color
-    Next i
-    Color(1) = 1
-    AttackList.Font(Index).FontColor = Color
-    Call AttackList.UpdateData()
-End Sub
-
-Private Function CreateInput() As VBGLIInput
+Private Function CreateInput(ByVal Base As std_Callable, _
+                             ByVal Texture As VBGLTexture, _
+                             ByVal TextObject As std_Callable, _
+                             ByVal NameObject As std_Callable, _
+                             ByVal ColorObject As std_Callable _
+                            ) As VBGLIInput
+                             
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Dim GetSelected As VBGLCallable
-    Set GetSelected = ConvertCallable("$0.Selected()", MeFighter.FightBase.Fumons.FirstAlive.Attacks)
-    Call Temp.AddKeyUp(Asc("1") , ConvertCallable("UpdateAttack(0)"))
-    Call Temp.AddKeyUp(Asc("2") , ConvertCallable("UpdateAttack(1)"))
-    Call Temp.AddKeyUp(Asc("3") , ConvertCallable("UpdateAttack(2)"))
-    Call Temp.AddKeyUp(Asc("4") , ConvertCallable("UpdateAttack(3)"))
-    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("$0.LetCurrentMove()" , MeFighter.FightBase))
-    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("$0.LetCurrentValue()", MeFighter.FightBase))
-    Call Temp.AddKeyUp(Asc(" ") , ConvertCallable("RemoveRenderObject()"))
-    Call Temp.AddKeyUp(27       , ConvertCallable("RemoveRenderObject()"))
+    Dim GetSelectedAttack As std_Callable
+    Set GetSelectedAttack = CreateFixedCallable("$0.Selected()", Base)
+
+
+    Set UpdateAttack = CreateFixedCallable("UpdateList($0, $1, $2, $3, $4, $5, $6)", AttackList, Base, Texture, TextObject.SetAutoExecute(False), NameObject.SetAutoExecute(False), ColorObject.SetAutoExecute(False), GetSelectedAttack)
+
+    Call Temp.AddKeyUp(Asc("1") , CreateFixedCallable("$0.Selected(0)", Base))
+    Call Temp.AddKeyUp(Asc("2") , CreateFixedCallable("$0.Selected(1)", Base))
+    Call Temp.AddKeyUp(Asc("3") , CreateFixedCallable("$0.Selected(2)", Base))
+    Call Temp.AddKeyUp(Asc("4") , CreateFixedCallable("$0.Selected(3)", Base))
+    Call Temp.AddKeyUp(Asc("1") , UpdateAttack)
+    Call Temp.AddKeyUp(Asc("2") , UpdateAttack)
+    Call Temp.AddKeyUp(Asc("3") , UpdateAttack)
+    Call Temp.AddKeyUp(Asc("4") , UpdateAttack)
+
+    Call Temp.AddKeyUp(Asc(" ") , std_Callable.Create(MePlayer.FightBase.CurrentMove , "Value", vbLet, 0).Bind(FightMove.FightMoveAttack).FixArgs(True))
+    Call Temp.AddKeyUp(Asc(" ") , std_Callable.Create(MePlayer.FightBase.CurrentValue, "Value", vbLet, 0).Bind(GetSelectedAttack).FixArgs(True))
+    Call Temp.AddKeyUp(Asc(" ") , CreateFixedCallable("RemoveDrawableFromRenderObject()"))
+    Call Temp.AddKeyUp(27       , CreateFixedCallable("RemoveDrawableFromRenderObject()"))
     Set CreateInput = Temp
-End Function
-
-Private Function CreateAttackList() As VBGLTextBox
-    Dim Temp As VBGLProperties
-    Set Temp = FactoryTextBoxProperties.Clone()
-    Call Temp.LetValueFamily("TopLeft*"     , -1.0!, +1.0!, +0.0!)
-    Call Temp.LetValueFamily("TopRight*"    , +0.0!, +1.0!, +0.0!)
-    Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
-    Call Temp.LetValueFamily("BottomRight*" , +0.0!, -1.0!, +0.0!)
-    Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
-    Set CreateAttackList = FactoryTextBox.Create(Temp, UpdateTextBox(UsedFont))
-End Function
-
-Private Function UpdateTextBox(FontLayout As VBGLFontLayout) As VBGLFont()
-    Dim Fonts() As VBGLFont
-    Dim Text As String
-    With MeFighter.FightBase.Fumons.FirstAlive.Attacks
-        ReDim Fonts(.AttackCount)
-        Dim i As Long
-        For i = 0 To .AttackCount
-            Text = .Attack(i).Name & " " & .Attack(i).GetTypeName() & ": ( " & .Attack(i).ElementType & " | " & .Attack(i).Func & " )" & vbCrLf
-            Set Fonts(i) = VBGLFont.Create(Text , FontLayout)
-        Next i
-    End With
-    UpdateTextBox = Fonts
 End Function

@@ -8,33 +8,40 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 
+
 Option Explicit
 
-Public Property Get Number()  As Range
-End Property
-Public Property Get Name()    As Range
-End Property
+Private p_PlayerBase As PlayerBase
+Private p_SpecificBase As SpecificBase
+Private p_MoveBase   As MoveBase
+Private p_FightBase  As FightBase
 
-Public Property Get PlayerBase() As PlayerBase
-End Property
 
-Public Property Get MoveBase() As MoveBase
-End Property
+Public Property Let PlayerBase(ByVal n_PlayerBase     As PlayerBase)     : Set p_PlayerBase   = n_PlayerBase   : End Property
+Public Property Let SpecificBase(ByVal n_SpecificBase As SpecificBase)   : Set p_SpecificBase = n_SpecificBase : End Property
+Public Property Let MoveBase(ByVal n_MoveBase         As MoveBase)       : Set p_MoveBase     = n_MoveBase     : End Property
+Public Property Let FightBase(ByVal n_FightBase       As FightBase)      : Set p_FightBase    = n_FightBase    : End Property
 
-Public Sub Teleport(ByVal x As Long, ByVal y As Long)
-End Sub
+Public Property Get PlayerBase()                      As PlayerBase      : Set PlayerBase     = p_PlayerBase   : End Property
+Public Property Get SpecificBase()                    As SpecificBase    : Set SpecificBase   = p_SpecificBase : End Property
+Public Property Get MoveBase()                        As MoveBase        : Set MoveBase       = p_MoveBase     : End Property
+Public Property Get FightBase()                       As FightBase       : Set FightBase      = p_FightBase    : End Property
 
-Public Sub Move(ByVal x As Long, ByVal y As Long)
-End Sub
+Public Function Create(ByVal Rng As IRange, ByVal FumonDefinitions As PropCollection, ByVal ItemDefinitions As PropCollection, ByVal GameMaps As PropCollection, ByVal Scripts As PropCollection) As IPlayer
+    Set Create = New IPlayer
+    Dim TempPlayerBase   As PlayerBase   : Set TempPlayerBase   = New PlayerBase
+    Dim TempSpecificBase As SpecificBase : Set TempSpecificBase = New SpecificBase
+    Dim TempMoveBase     As MoveBase     : Set TempMoveBase     = New MoveBase
+    Dim TempFightBase    As FightBase    : Set TempFightBase    = New FightBase
 
-Public Sub MovePath(ByRef x() As Long, ByRef y() As Long)
-End Sub
+    Dim SpecificOffset As Long : SpecificOffset = TempPlayerBase.Offset()
+    Dim MoveOffset     As Long : MoveOffset     = SpecificOffset + TempSpecificBase.Offset()
+    Dim FightOffset    As Long : FightOffset    = MoveOffset + TempMoveBase.Offset()
 
-Public Sub Look(ByVal Direction As XlDirection)
-End Sub
-
-Public Sub Interact(ByVal Offset As Long)
-End Sub
-
-Public Function SubTextureName() As String
+    With Create
+        .PlayerBase        = TempPlayerBase.Create(Rng)
+        .SpecificBase      = TempSpecificBase.Create(Rng.Offset(0, SpecificOffset), Scripts)
+        .MoveBase          = TempMoveBase.Create(Rng.Offset(0, MoveOffset), .PlayerBase, GameMaps)
+        .FightBase         = TempFightBase.Create(Rng.Offset(0, FightOffset), FumonDefinitions, ItemDefinitions)
+    End With
 End Function

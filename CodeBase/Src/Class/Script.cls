@@ -31,7 +31,7 @@ Public Property Get Active()                    As Long          : Let Active   
 Public Property Get Minute()                    As Long          : Let Minute      = p_Minute   : End Property
 
 
-Public Function Create(ByVal Rng As Range) As Script
+Public Function Create(ByVal Rng As IRange) As Script
     Dim Temp() As String
     Temp = Split(Rng.Offset(0, 1).Value, ".")
     Set Create = New Script

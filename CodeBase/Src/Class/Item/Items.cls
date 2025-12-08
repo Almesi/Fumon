@@ -61,7 +61,7 @@ Public Sub AddItem(ByVal n_Item As Item)
     Call VBGLAdd(p_Items, n_Item)
 End Sub
 
-Public Function Create(Rng As Range, ByVal ItemDefinitions As PropCollection) As Items
+Public Function Create(Rng As IRange, ByVal ItemDefinitions As PropCollection) As Items
     Dim i As Long
     Set Create = New Items
     Dim Temp As Item: Set Temp = New Item

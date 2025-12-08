@@ -45,13 +45,13 @@ Public Function Create(ByVal Server As GameServer) As ServerOwner
 End Function
 
 Public Sub UpdateServer()
-    If MapData.ServerStarter.Formula <> Empty Then
-        If MapData.ServerStarter.Value = MePlayer.Number.Value Then
+    If MapData.ServerStarter.Value <> Empty Then
+        If MapData.ServerStarter.Value = MePlayer.PlayerBase.Number.Value Then
             Call UpdatesServer.Update(MapData.Minute.Value)
             Call MapData.UpdateTime()
         End If
     Else
-        MapData.ServerStarter.Value = MePlayer.Number.Value
+        MapData.ServerStarter.Value = MePlayer.PlayerBase.Number.Value
     End If
 End Sub
 
@@ -72,10 +72,9 @@ Private Function InitUpdatesServer(ByVal WB As Workbook, ByVal MapData As MapDat
     Dim Temp() As IPlayer
     Call Players.GetObjects(Temp)
     Call MapData.ClearPlayers()
-
-    With WB.Sheets("ServerUpdates").Range("A2")
+    With ServerUpdatesStart
         Do While .Offset(i, 0).Formula <> Empty
-            Call InitUpdatesServer.AddThread(CreateCallables(CreateCallable(.Offset(i, 2), Scripts)), Once, .Offset(i, 1))
+            Call InitUpdatesServer.AddThread(CreateCallables(CreateCallable(.Offset(i, 2), Scripts)), Once, .Offset(i, 1).Value)
             i = i + 1
         Loop
     End With
@@ -87,9 +86,9 @@ Private Function InitUpdatesPlayer(ByVal WB As Workbook, ByVal MapData As MapDat
     Dim Once() As std_Callable
 
     Set InitUpdatesPlayer = UpdateQueue.Create()
-    With WB.Sheets("PlayerUpdates").Range("A2")
+    With PlayerUpdatesStart
         Do While .Offset(i, 0).Formula <> Empty
-            Call InitUpdatesPlayer.AddThread(CreateCallables(CreateCallable(.Offset(i, 2), Scripts)), Once, .Offset(i, 1))
+            Call InitUpdatesPlayer.AddThread(CreateCallables(CreateCallable(.Offset(i, 2), Scripts)), Once, .Offset(i, 1).Value)
             i = i + 1
         Loop
     End With
@@ -106,7 +105,7 @@ Private Function CreateCallables(ByVal Callable As std_Callable) As std_Callable
     CreateCallables = Arr
 End Function
 
-Private Function CreateCallable(ByVal Rng As Range, ByVal Scripts As PropCollection) As std_Callable
+Private Function CreateCallable(ByVal Rng As IRange, ByVal Scripts As PropCollection) As std_Callable
     Set CreateCallable = AllCallables.CreateCallable(Rng.Value)
 End Function
 

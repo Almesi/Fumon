@@ -19,11 +19,11 @@ Public Property Get TotalFumons() As Long
     TotalFumons = p_TotalFumons
 End Property
 
-Public Property Get FumonCount() As Long
+Public Property Get Count() As Long
     Dim i As Long
     For i = 0 To TotalFumons
         If IsNothing(Fumon(i)) Then
-            FumonCount = i - 1
+            Count = i - 1
             Exit Function
         End If
     Next i
@@ -50,6 +50,11 @@ Public Property Let Fumon(ByVal Index As Long, ByVal n_Fumon As Fumon)
     Set p_Fumons(Index) = n_Fumon
 End Property
 
+
+Public Function SelectedFumon() As Fumon
+    Set SelectedFumon = Fumon(Selected)
+End Function
+
 Public Function GetFumonIndex(ByVal Search As Fumon) As Long
     Dim i As Long
     For i = 0 To TotalFumons
@@ -61,7 +66,17 @@ Public Function GetFumonIndex(ByVal Search As Fumon) As Long
     GetFumonIndex = -1
 End Function
 
-Public Function Create(ByVal Rng As Range, ByVal FumonDefinitions As PropCollection) As Fumons
+Public Function FirstAliveIndex() As Long
+    Dim Found As Fumon
+    Set Found = FirstAlive
+    If IsSomething(Found) Then
+        FirstAliveIndex = GetFumonIndex(Found)
+    Else
+        FirstAliveIndex = -1
+    End If
+End Function
+
+Public Function Create(ByVal Rng As IRange, ByVal FumonDefinitions As PropCollection) As Fumons
     Dim i As Long
     Set Create = New Fumons
     Dim Temp As Fumon: Set Temp = New Fumon
@@ -77,6 +92,12 @@ End Function
 Public Sub Swap(ByVal Index1 As Long, ByVal Index2 As Long)
     Dim Fumon1 As Fumon : Set Fumon1 = Fumon(Index1)
     Dim Fumon2 As Fumon : Set Fumon2 = Fumon(Index2)
+    Dim Temp   As FumonDefinition
+    Set Temp = Fumon1.Definition
+    Fumon1.Definition = Fumon2.Definition
+    Fumon2.Definition = Temp
+
+    Call SwapRange(Fumon1, Fumon2, "Number")
     Call SwapRange(Fumon1, Fumon2, "Expirience")
     Call SwapRange(Fumon1, Fumon2, "CurrentHealth")
     Call SwapRange(Fumon1, Fumon2, "CurrentAttack")
@@ -88,8 +109,9 @@ Public Sub Swap(ByVal Index1 As Long, ByVal Index2 As Long)
 End Sub
 
 Private Sub SwapRange(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon, ByVal Prop As String)
-    Dim Rng1 As Range, Rng2 As Range
+    Dim Rng1 As IRange, Rng2 As IRange
     Select Case Prop
+        Case "Number"            : Set Rng1 = Fumon1.Number            : Set Rng2 = Fumon2.Number
         Case "Expirience"        : Set Rng1 = Fumon1.Expirience        : Set Rng2 = Fumon2.Expirience
         Case "CurrentHealth"     : Set Rng1 = Fumon1.CurrentHealth     : Set Rng2 = Fumon2.CurrentHealth
         Case "CurrentAttack"     : Set Rng1 = Fumon1.CurrentAttack     : Set Rng2 = Fumon2.CurrentAttack
@@ -101,7 +123,7 @@ Private Sub SwapRange(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon, ByVal Prop A
             Call SwapAttacks(Fumon1, Fumon2)
             Exit Sub
     End Select
-    Dim TempRange As Range
+    Dim TempRange As IRange
     Set TempRange = Rng1
     Set Rng1 = Rng2
     Set Rng2 = TempRange
@@ -112,6 +134,7 @@ Private Sub SwapRange(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon, ByVal Prop A
     Rng2.Value = TempValue
 
     Select Case Prop
+        Case "Number"            : Fumon1.Number            = Rng1 : Fumon2.Number            = Rng2
         Case "Expirience"        : Fumon1.Expirience        = Rng1 : Fumon2.Expirience        = Rng2
         Case "CurrentHealth"     : Fumon1.CurrentHealth     = Rng1 : Fumon2.CurrentHealth     = Rng2
         Case "CurrentAttack"     : Fumon1.CurrentAttack     = Rng1 : Fumon2.CurrentAttack     = Rng2
@@ -124,11 +147,11 @@ End Sub
 
 Private Sub SwapAttacks(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon)
     Dim i As Long
-    Dim Rng1 As Range
-    Dim Rng2 As Range
-    Dim TempRange As Range
+    Dim Rng1 As IRange
+    Dim Rng2 As IRange
+    Dim TempRange As IRange
     Dim TempValue As Variant
-    For i = 0 To Fumon1.Attacks.AttackCount
+    For i = 0 To Fumon1.Attacks.Count
         Set Rng1 = Fumon1.Attacks.AttackRange(i)
         Set Rng2 = Fumon2.Attacks.AttackRange(i)
 

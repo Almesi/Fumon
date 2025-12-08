@@ -19,7 +19,7 @@ Private Function CreateInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Call Temp.AddKeyUp(27, ConvertCallable("RemoveRenderObject()"))
+    Call Temp.AddKeyUp(27, CreateFixedCallable("RemoveRenderObject()"))
     Set CreateInput = Temp
 End Function
 

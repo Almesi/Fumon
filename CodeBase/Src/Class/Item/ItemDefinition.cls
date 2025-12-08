@@ -24,7 +24,7 @@ Public Property Get Number()                              As Long               
 Public Property Get Name()                                As String              : Name                    = p_Name       : End Property
 Public Property Get Script()                              As Script              : Set Script              = p_Script     : End Property
 
-Public Function Create(ByVal Rng As Range, ByVal Scripts As PropCollection) As ItemDefinition
+Public Function Create(ByVal Rng As IRange, ByVal Scripts As PropCollection) As ItemDefinition
     Set Create = New ItemDefinition
     With Create
         .Number            = Rng.Offset(0, 0).Value

@@ -13,8 +13,9 @@ Public Sub SetUpTileSet()
 
     Dim Tiles() As Long
     Tiles = MeGameMap.Tiles.TileData("Tiles")
-    Set TileSet = VBGLDualGrid.Create(MeServer.MapData.Folder.Value & "\Sprites\Tiles.png", 64, 64, ScreenSpriteX, ScreenSpriteY)
-    Call TileSet.SetUp(Layout, Tiles)
+
+    Set CreateGrid = VBGLDualGrid.CreateFromFolder(MeServer.MapData.Folder.Value & "\Sprites", False)
+    Call CreateGrid.SetUp(Layout, Tiles)
 
     Dim z() As Single
     z = MeGameMap.Tiles.TileData("Depth")

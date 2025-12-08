@@ -62,20 +62,20 @@ Public Sub FindPath(ByVal Player1 As Long, ByVal Player2 As Long, ByRef x() As L
     Call FindPathAlgorithm(p1.MoveBase.Map, StartX, EndX, StartY, EndY, x, y)
 End Sub
 
-Public Function ReversePath(ByRef InX() As Long, ByRef InY() As Long, ByRef OutX() As Long, ByRef OutY() As Long)
+Public Sub ReversePath(ByRef InX() As Long, ByRef InY() As Long, ByRef OutX() As Long, ByRef OutY() As Long)
     Dim i As Long
     OutX = InX
     OutY = InY
 
     For i = 0 To USize(InX)
-        OutX = InX * -1
+        OutX(i) = InX(i) * -1
     Next i
 
     For i = 0 To USize(InY)
-        OutY = InY * -1
+        OutY(i) = InY(i) * -1
     Next i
 
-End Function
+End Sub
 
 Public Sub FindPathAlgorithm(ByVal Map As GameMap, ByVal StartX As Long, ByVal EndX As Long, ByVal StartY As Long, ByVal EndY As Long, ByRef x() As Long, ByRef y() As Long)
     Dim i As Long

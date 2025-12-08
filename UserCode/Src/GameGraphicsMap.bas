@@ -15,10 +15,10 @@ Private Function CreateInput() As VBGLIInput
     Dim Temp As VBGLGeneralInput
     Set Temp = New VBGLGeneralInput
 
-    Dim TempCol As VBGLCallable: Set TempCol = VBGLCallable.Create(MePlayerHuman.MoveBase.Column, "Value", vbGet, -1)
-    Dim TempRow As VBGLCallable: Set TempRow = VBGLCallable.Create(MePlayerHuman.MoveBase.Row, "Value", vbGet, -1)
+    Dim TempCol As std_Callable: Set TempCol = std_Callable.Create(MePlayer.MoveBase.Column, "Value", vbGet, -1)
+    Dim TempRow As std_Callable: Set TempRow = std_Callable.Create(MePlayer.MoveBase.Row, "Value", vbGet, -1)
 
-    Call Temp.AddKeyUp(27, ConvertCallable("RemoveRenderObject()"))
-    Call Temp.AddKeyUp(27, VBGLCallable.Create(TileSet, "LookAt", vbMethod, 3, TempCol, TempRow, ScreenSpriteX, ScreenSpriteY))
+    Call Temp.AddKeyUp(27, CreateFixedCallable("RemoveRenderObject()"))
+    Call Temp.AddKeyUp(27, std_Callable.Create(TileSet, "LookAt", vbMethod, 3).Bind(TempCol, TempRow, ScreenSpriteX, ScreenSpriteY).FixArgs(True))
     Set CreateInput = Temp
 End Function

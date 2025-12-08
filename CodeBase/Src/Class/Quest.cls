@@ -27,7 +27,7 @@ Public Property Get Name()                    As String  : Name          = p_Nam
 Public Property Get Description()             As String  : Description   = p_Description : End Property
 Public Property Get Condition()               As String  : Condition     = p_Condition   : End Property
 
-Public Function Create(ByVal Rng As Range) As Quest
+Public Function Create(ByVal Rng As IRange) As Quest
     Set Create = New Quest
     With Create
         .Number       = Rng.Offset(0, 0).Value

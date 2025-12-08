@@ -49,9 +49,26 @@ Public Function Create(ByRef n_Objects As Variant) As PropCollection
     End With
 End Function
 
-Public Sub Add(ByVal n_Object As Object)
+Public Function Add(ByVal n_Object As Object) As Long
     Call VBGLAdd(p_Objects, n_Object)
     p_Count = USize(p_Objects)
+    Add = Count
+End Function
+
+Public Sub Remove(ByVal Index As Long)
+    Dim NewSize As Long
+    NewSize = Count - 1
+    Dim i As Long
+    Dim Arr() as Object
+    ReDim Arr(NewSize)
+    For i = 0 To Index - 1
+        Set Arr(i) = Object(i)
+    Next i
+    For i = Index + 1 To Count
+        Set Arr(i - 1) = Object(i)
+    Next i
+    p_Objects = Arr
+    p_Count = NewSize
 End Sub
 
 Public Sub AddUnique(ByVal n_Object As Object)

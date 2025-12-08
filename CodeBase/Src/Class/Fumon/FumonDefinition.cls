@@ -79,14 +79,14 @@ Public Property Get SpAttackModifier()                         As Double        
 Public Property Get SpDefenseModifier()                        As Double             : Let SpDefenseModifier       = p_SpDefenseModifier  : End Property
 Public Property Get InitiativeModifier()                       As Double             : Let InitiativeModifier      = p_InitiativeModifier : End Property
 Public Property Get LevelFormula()                             As String             : Let LevelFormula            = p_LevelFormula       : End Property
-Public Property Get Attacks()                                  As Variant            : Let Attacks                 = n_Attacks            : End Property
-Public Property Get LearnAttacks()                             As Variant            : Let LearnAttacks            = n_LearnAttacks       : End Property
+Public Property Get Attacks()                                  As Variant            : Let Attacks                 = p_Attacks            : End Property
+Public Property Get LearnAttacks()                             As Variant            : Let LearnAttacks            = p_LearnAttacks       : End Property
 
-Public Property Get AttackDef(Index As Long)                   As Attack             : Set Attack                  = p_Attacks(Index)     : End Property
+Public Property Get AttackDef(Index As Long)                   As Attack             : Set AttackDef               = p_Attacks(Index)     : End Property
 Public Property Get LearnAttack(Index As Long)                 As Long               : Let LearnAttack             = p_LearnAttacks(Index): End Property
 
 
-Public Function Create(ByVal Rng As Range, ByVal AttackDefs As PropCollection) As FumonDefinition
+Public Function Create(ByVal Rng As IRange, ByVal AttackDefs As PropCollection) As FumonDefinition
     Set Create = New FumonDefinition
     With Create
         .Number             = Rng.Offset(0, 00).Value

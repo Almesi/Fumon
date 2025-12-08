@@ -11,17 +11,21 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
+
+
 Private p_Definition As ItemDefinition
-Private p_Amount As Range
+Private p_Amount As IRange
 
 Public Property Let Definition(n_Definition As ItemDefinition) : Set p_Definition = n_Definition : End Property
-Public Property Let Amount(n_Amount         As Range)          : Set p_Amount     = n_Amount     : End Property
+Public Property Let Amount(n_Amount         As IRange)          : Set p_Amount     = n_Amount     : End Property
 
 Public Property Get Definition()            As ItemDefinition  : Set Definition   = p_Definition : End Property
-Public Property Get Amount()                As Range           : Set Amount       = p_Amount     : End Property
+Public Property Get Amount()                As IRange           : Set Amount       = p_Amount     : End Property
 
 
-Public Function Create(Definition As ItemDefinition, Amount As Range) As Item
+
+
+Public Function Create(Definition As ItemDefinition, Amount As IRange) As Item
     Set Create = New Item
     With Create
         .Definition = Definition
@@ -35,3 +39,7 @@ Public Sub Use()
         p_Amount = p_Amount - 1
     End If
 End Sub
+
+Public Function FullName() As String
+    FullName = Definition.Name & " : " & Amount.Value()
+End Function

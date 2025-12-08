@@ -6,11 +6,15 @@ Option Explicit
 Public Function RangeCount(ByVal Rng As Range, ByVal Direction As XlDirection) As Long
     Dim Result As Long
     Result = -1
+    If Rng.Formula = Empty Then
+        RangeCount = -1
+        Exit Function
+    End If
     Select Case Direction
-        Case xlUp    : If Rng.Offset(-1, 0).Value = Empty Then Result = 0
-        Case xlLeft  : If Rng.Offset(0, -1).Value = Empty Then Result = 0
-        Case xlDown  : If Rng.Offset(+1, 0).Value = Empty Then Result = 0
-        Case xlRight : If Rng.Offset(0, +1).Value = Empty Then Result = 0
+        Case xlUp    : If Rng.Offset(-1, 0).Formula = Empty Then Result = 0
+        Case xlLeft  : If Rng.Offset(0, -1).Formula = Empty Then Result = 0
+        Case xlDown  : If Rng.Offset(+1, 0).Formula = Empty Then Result = 0
+        Case xlRight : If Rng.Offset(0, +1).Formula = Empty Then Result = 0
     End Select
     If Result <> 0 Then
         Select Case Direction
@@ -31,36 +35,34 @@ Public Sub Say(ByVal Name As String, ByVal Message As String)
     Set PreviousInput = CurrentRenderObject.UserInput
     CurrentRenderObject.UserInput = MessageBoxInput()
     Call CurrentRenderObject.AddDrawable(MessageRenderObject)
-    Do Until EscapeTextBox = True
+    Do Until EscapeMsgBox = True
         Call glutMainLoopEvent()
         Call CurrentRenderObject.Loopp
     Loop
     CurrentRenderObject.UserInput = PreviousInput
     Call CurrentRenderObject.RemoveDrawable()
-    Call EscapeTextBox(True)
+    Call EscapeMsgBox(True)
 End Sub
 
-Public Function EscapeTextBox(Optional ByVal Setter As Boolean = False) As Boolean
-    Static Value As Boolean
-    If Setter Then Value = Value Xor True
-    EscapeTextBox = Value
-End Function
-
-Public Sub IncrementItem(ByVal Player As HumanPlayer, ByVal ItemPointer As Long, ByVal Value As Long)
+Public Sub IncrementItem(ByVal Player As IPlayer, ByVal ItemPointer As Long, ByVal Value As Long)
     Dim Itemm As Item: Set Itemm = GetItem(Player, ItemPointer)
     Itemm.Value = Itemm.Value + Value
 End Sub
 
-Public Function GetItem(ByVal Player As HumanPlayer, ByVal ItemPointer As Long) As Item
+Public Function GetItem(ByVal Player As IPlayer, ByVal ItemPointer As Long) As Item
     Set GetItem = Player.Items.Item(ItemPointer)
 End Function
 
-Public Function GetItemAmount(ByVal Player As HumanPlayer, ByVal ItemPointer As Long) As Long
+Public Function GetItemAmount(ByVal Player As IPlayer, ByVal ItemPointer As Long) As Long
     GetItemAmount = GetItem(Player, ItemPointer).Amount.Value
 End Function
 
 Public Function GetPlayer(ByVal Index As Long) As IPlayer
     Set GetPlayer = MeServer.Player(Index)
+End Function
+
+Public Function GetSpawner(ByVal Index As Long) As FumonSpawner
+    Set GetSpawner = MeServer.FumonSpawner(Index)
 End Function
 
 Public Function MakeArgumentArr(ByVal Text As String) As Variant()
@@ -91,6 +93,6 @@ Public Sub HealPlayerFumon(Index As Long, FumonIndex As Long, Value As Long)
     Call Fumon.CheckHealth()
 End Sub
 
-Public Function TilesInFront(ByVal Index As Long, ByVal Offset As Long) As Range
+Public Function TilesInFront(ByVal Index As Long, ByVal Offset As Long) As IRange
     Call MeServer.Player(Index).TileInFront(Offset)
 End Function
