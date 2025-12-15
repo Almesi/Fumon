@@ -14,8 +14,10 @@ Public Sub SetUpTileSet()
     Dim Tiles() As Long
     Tiles = MeGameMap.Tiles.TileData("Tiles")
 
-    Set CreateGrid = VBGLDualGrid.CreateFromFolder(MeServer.MapData.Folder.Value & "\Sprites", False)
-    Call CreateGrid.SetUp(Layout, Tiles)
+    Set TileSet = VBGLDualGrid.CreateFromFolder(MeServer.MapData.Folder.Value & "\Sprites\Tiles", False)
+    Call TileSet.SetUp(Layout, Tiles)
+    Call SortTileSet()
+
 
     Dim z() As Single
     z = MeGameMap.Tiles.TileData("Depth")
@@ -60,6 +62,21 @@ Private Function GetPlayerData(ByVal Texture As VBGLTexture, ByRef MapData() As 
 
     Set GetPlayerData = VBGLData.CreateSingle(ReturnArr)
 End Function
+
+Private Sub SortTileSet()
+    Dim NamesVar   As Variant : NamesVar = MeServer.Tiles.Properties("Name")
+    Dim SubNames() As String  : SubNames = TileSet.TypeTypeString()
+    Dim Names() As String
+    Dim i As Long
+    ReDim Names(USize(NamesVar))
+    For i = 0 To USize(NamesVar)
+        Names(i) = CStr(NamesVar(i))
+    Next i
+
+    Dim Manager As VBGLTextureManager
+    Set Manager = New VBGLTextureManager
+    Call Manager.SortByArrayFamily(TileSet.TileSet, Names, SubNames)
+End Sub
 
 Private Sub AddTriangles(ByRef Arr() As Single, ByVal x As Long, ByVal y As Long, ByVal z As Single, ByVal SubTexture As VBGLSubTexture, ByVal MaxX As Long, ByVal MaxY As Long)
     Dim VertexSize As Long: VertexSize = 5

@@ -9,6 +9,8 @@ Public AllCallables   As std_AllCallables
 
 
 Public Sub InitializeGame()
+    Dim StartTime As Single
+    StartTime = Timer
     Dim CurrentBuild As std_VBProject
     Dim PlayerSettings As IConfig
 
@@ -18,19 +20,25 @@ Public Sub InitializeGame()
     Dim NewErrorHandler As std_ErrorHandler
     Set NewErrorHandler = std_ErrorHandler.Create(Shower, Logger)
 
+    Debug.Print "Start: " & Timer - StartTime
+
     Set PlayerSettings = std_ConfigRange.Create(ThisWorkbook.Sheets("Settings"))
     Set CurrentBuild = std_VBProject.Create(ThisWorkbook.VBProject, NewErrorHandler)
     Set AllCallables = std_AllCallables.CreateFromProject(ThisWorkbook.VBProject)
+    Debug.Print "AllCallables: " & Timer - StartTime
 
     Call CreateContextAndWindow(Logger, Shower)
     If IsNothing(CurrentContext) Then Exit Sub
+    Debug.Print "WindowCreation: " & Timer - StartTime
 
     Set MeServer = ConnectToServer(PlayerSettings)
     If IsNothing(MeServer) Then Exit Sub
+    Debug.Print "ServerConnection: " & Timer - StartTime
     
     Set MePlayer = MeServer.GetPlayer(PlayerSettings.Setting("Username"))
     If IsNothing(MePlayer) Then Exit Sub
     MePlayer.MoveBase.DoInteract = True
+    Debug.Print "PlayerCreation: " & Timer - StartTime
 
     Set FactoryTextBox = New VBGLTextBox
     With FactoryTextBox
@@ -39,11 +47,15 @@ Public Sub InitializeGame()
         .Pages          = 1
         .LineOffset     = 0.1!
     End With
+    Debug.Print "FactoryCreation: " & Timer - StartTime
+
     Set FactoryTextBoxProperties = FactoryTextBox.CreateProperties(2, 3)
-    Set GameTextures = InitTextures(MeServer.WorkBook)
     Set MeOwner = ServerOwner.Create(MeServer)
+    Debug.Print "ServerOwnerCreation: " & Timer - StartTime
     Call SetUpGameGraphics()
+    Debug.Print "GraphicsSetUp: " & Timer - StartTime
     Call MeServer.Workbook.Close
+    Debug.Print "ClosingBook: " & Timer - StartTime
 End Sub
 
 Private Sub CreateContextAndWindow(ByVal Logger As IDestination, ByVal Shower As IDestination)
@@ -75,7 +87,7 @@ Private Function ConnectToServer(ByVal Settings As IConfig) As GameServer
 End Function
 
 Public Function SetUpGameGraphics() As Boolean
-    Dim FreetypePath As String: FreetypePath = "C:\Users\deallulic\Documents\GitHub\VBGL\Code\Src\Externals"
+    Dim FreetypePath As String: FreetypePath = "C:\Users\deallulic\Documents\GitHub\VBGL\Code\Src\Graphics\Extensions\Drawables\TextRendering"
     Dim FontPath     As String: FontPath     = "C:\Users\deallulic\Documents\GitHub\VBGL\Code\Res\Fonts\Consolas.ttf"
 
     Set UsedFont = VBGLFontLayout.Create(FreetypePath, FontPath, 48)
@@ -89,20 +101,37 @@ Public Function SetUpGameGraphics() As Boolean
     ' In Reversed order, so that addrenderobject will not recieve nothing, as the next renderobject is not created yet
     Set FarLeftSideFrame = VBGLFrame.CreateFromWindow(0   , 0, 0.25, 1, 0   , 0, 0.25, 1, CurrentContext.CurrentWindow)
     Set LeftSideFrame    = VBGLFrame.CreateFromWindow(0.25, 0, 0.25, 1, 0.25, 0, 0.25, 1, CurrentContext.CurrentWindow)
+    Dim StartTime As Single
+    StartTime = Timer
+    Debug.Print "Frames: " & Timer - StartTime
 
-    Set QuestionRenderObject  = SetUpMessageGraphics()   : Call QuestionRenderObject.AssignColor(1, 1, 1, 1)
-    Set MessageRenderObject   = SetUpMessageGraphics()   : Call MessageRenderObject.AssignColor(1, 1, 1, 1)
-    Set OptionsRenderObject   = SetUpOptionsGraphics()   : Call OptionsRenderObject.AssignColor(1, 1, 1, 1)
-    Set AttackRenderObject    = SetUpAttackGraphics()    : Call AttackRenderObject.AssignColor(1, 1, 1, 1)
-    Set FumonRenderObject     = SetUpFumonGraphics()     : Call FumonRenderObject.AssignColor(1, 1, 1, 1)
-    Set InventoryRenderObject = SetUpInventoryGraphics() : Call InventoryRenderObject.AssignColor(1, 1, 1, 1)
-    Set FightRenderObject     = SetUpFightGraphics()     : Call FightRenderObject.AssignColor(1, 1, 1, 1)
-    Call SetUpTileSet()
-    Set MapRenderObject       = SetUpMapGraphics()       : Call MapRenderObject.AssignColor(0, 0, 0, 1)
-    Set OverWorldRenderObject = SetUpOverWorldGraphics() : Call OverWorldRenderObject.AssignColor(0, 0, 0, 1)
-    Set StartRenderObject     = SetUpStartGraphics()     : Call StartRenderObject.AssignColor(1, 1, 1, 1)
 
     Set GameTextures = InitTextures(MeServer.WorkBook)
+    Debug.Print "Textures: " & Timer - StartTime
+
+    Set QuestionRenderObject  = SetUpMessageGraphics()   : Call QuestionRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "Questions: " & Timer - StartTime
+    Set MessageRenderObject   = SetUpMessageGraphics()   : Call MessageRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "Messages: " & Timer - StartTime
+    Set OptionsRenderObject   = SetUpOptionsGraphics()   : Call OptionsRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "Options: " & Timer - StartTime
+    Set AttackRenderObject    = SetUpAttackGraphics()    : Call AttackRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "Attacks: " & Timer - StartTime
+    Set FumonRenderObject     = SetUpFumonGraphics()     : Call FumonRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "Fumons: " & Timer - StartTime
+    Set InventoryRenderObject = SetUpInventoryGraphics() : Call InventoryRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "Inventory: " & Timer - StartTime
+    Set FightRenderObject     = SetUpFightGraphics()     : Call FightRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "Fight: " & Timer - StartTime
+    Call SetUpTileSet()
+    Debug.Print "TileSet: " & Timer - StartTime
+    Set MapRenderObject       = SetUpMapGraphics()       : Call MapRenderObject.AssignColor(0, 0, 0, 1)
+    Debug.Print "Map: " & Timer - StartTime
+    Set OverWorldRenderObject = SetUpOverWorldGraphics() : Call OverWorldRenderObject.AssignColor(0, 0, 0, 1)
+    Debug.Print "OverWorld: " & Timer - StartTime
+    Set StartRenderObject     = SetUpStartGraphics()     : Call StartRenderObject.AssignColor(1, 1, 1, 1)
+    Debug.Print "StartRenderObject: " & Timer - StartTime
+
     Call VBGLCallbackFunc("DisplayFunc")
     Call CurrentContext.SetIdleFunc(AddressOf GameIdleFunc)
     Call VBGLCallbackFunc("KeyboardFunc")
@@ -110,6 +139,7 @@ Public Function SetUpGameGraphics() As Boolean
     Call VBGLCallbackFunc("PassiveMotionFunc")
     Call VBGLCallbackFunc("MouseWheelFunc")
     Call AddRenderObject(StartRenderObject)
+    Debug.Assert False
     Call CurrentContext.MainLoop()
     MeServer.MapData.ServerStarter.Formula = Empty
     SetUpGameGraphics = True
@@ -130,40 +160,44 @@ End Sub
 Private Function InitTextures(ByVal WB As Workbook) As PropCollection
     Dim SpriteFolder As String
     SpriteFolder = MeServer.MapData.Folder.Value & "\Sprites"
-    Dim fso As Object
-    Dim Folder As Object
-    Dim SubFolder As Object
-    Dim Tex As VBGLTexture
+
+    Dim ToLoad() As String
+    ReDim ToLoad(3)
+    ToLoad(0) = "Attacks"
+    ToLoad(1) = "Fumons"
+    ToLoad(2) = "Items"
+    ToLoad(3) = "Players"
     
-    
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    Set Folder = fso.GetFolder(SpriteFolder)
     
     Dim ReturnArr() As VBGLTexture
-    Debug.Assert False
-    For Each SubFolder In Folder.SubFolders
-        Set Tex = CreateSpriteTexture(WB.Worksheets(SubFolder.Name), SubFolder)
+    Dim i As Long
+
+    For i = 0 To USize(ToLoad)
+        Dim Manager As VBGLTextureManager  : Set Manager = VBGLTextureManager.Create(VBGLTextureMergerGrid.Create(False))
+        Dim Sheet   As Worksheet           : Set Sheet = WB.Worksheets(ToLoad(i))
+        Dim Tex     As VBGLTexture         : Call CreateSpriteTexture(Manager, Sheet, SpriteFolder & "\" & ToLoad(i))
+
+        Manager.Transpose = True
+        Set Tex = Manager.CreateTexture(TextureFactory(Manager), Sheet.Name, Empty)
         If IsNothing(Tex) Then
-            Debug.Print "Error, SubFolder does not exist for sprite creation: " & SubFolder.Name
+            Debug.Print "Error, SubFolder does not exist for sprite creation: " & ToLoad(i)
         Else
             Call VBGLAdd(ReturnArr, Tex)
         End If
-    Next SubFolder
+    Next i
     Set InitTextures = PropCollection.Create(ReturnArr)
 End Function
 
 
-Private Function CreateSpriteTexture(ByVal Sheet As Worksheet, ByVal SubFolder As Object) As VBGLTexture
-    Dim Manager As VBGLTextureManager
-    Set Manager = VBGLTextureManager.Create(VBGLTextureMergerGrid.Create(False))
+Private Sub CreateSpriteTexture(ByVal Manager As VBGLTextureManager, ByVal Sheet As Worksheet, ByVal FolderPath As String)
 
     Dim Names() As String
     Select Case Sheet.Name
         Case "Attacks"  : Names = ArrayString()
         Case "Items"    : Names = ArrayString()
-        Case "Fumons"   : Names = ArrayString("Up", "Left", "Down", "Right", "Front", "Back")
+        Case "Fumons"   : Names = ArrayString("Front", "Back")
         Case "Players"  : Names = ArrayString("Up", "Left", "Down", "Right", "Front", "Back")
-        Case Else       : Exit Function
+        Case Else       : Exit Sub
     End Select
     Dim ColumnCount As Long
     ColumnCount = Usize(Names) + 1
@@ -171,16 +205,15 @@ Private Function CreateSpriteTexture(ByVal Sheet As Worksheet, ByVal SubFolder A
 
     Dim File     As Object
     Dim fso      As Object : Set fso    = CreateObject("Scripting.FileSystemObject")
-    Dim Folder   As Object : Set Folder = fso.GetFolder(SubFolder.Path)
-    Dim FileName As String
+    Dim Folder   As Object : Set Folder = fso.GetFolder(FolderPath)
     For Each File In Folder.Files
-        FileName = Mid(File.Name, 1, InStr(1, File.Name, ".") - 1)
-        Manager.PreName = FileName
         Call Manager.LoadFromFileArr(File.Path, 1, ColumnCount, VBGLTextureManagerHelperSetUp.VBGLTextureManagerHelperSetUpGrid, Names)
     Next
-
-    Set CreateSpriteTexture = Manager.CreateTexture(TextureFactory(Manager), Sheet.Name, Empty)
-End Function
+    Dim SubFolder As Object
+    For Each SubFolder In Folder.SubFolders
+        Call CreateSpriteTexture(Manager, Sheet, SubFolder.Path)
+    Next SubFolder
+End Sub
 
 Private Function TextureFactory(ByVal Manager As VBGLTextureManager) As VBGLTexture
     Set TextureFactory = New VBGLTexture

@@ -31,9 +31,9 @@ Private p_Attacks            As Attacks
 
 
 
-Public Property Let Definition(n_Definition        As FumonDefinition) : Set p_Definition        = n_Definition         : End Property
+Public Property Let Definition(n_Definition        As FumonDefinition)  : Set p_Definition        = n_Definition         : End Property
 Public Property Let Number(n_Number                As IRange)           : Set p_Number            = n_Number             : End Property
-Public Property Let Level(n_Level                  As IRange)           : Set p_Level             = n_Level             : End Property
+Public Property Let Level(n_Level                  As IRange)           : Set p_Level             = n_Level              : End Property
 Public Property Let Expirience(n_Expirience        As IRange)           : Set p_Expirience        = n_Expirience         : End Property
 Public Property Let CurrentHealth(n_Health         As IRange)           : Set p_CurrentHealth     = n_Health             : End Property
 Public Property Let CurrentAttack(n_Attack         As IRange)           : Set p_CurrentAttack     = n_Attack             : End Property
@@ -41,11 +41,11 @@ Public Property Let CurrentDefense(n_Defense       As IRange)           : Set p_
 Public Property Let CurrentSpAttack(n_SpAttack     As IRange)           : Set p_CurrentSpAttack   = n_SpAttack           : End Property
 Public Property Let CurrentSpDefense(n_SpDefense   As IRange)           : Set p_CurrentSpDefense  = n_SpDefense          : End Property
 Public Property Let CurrentInitiative(n_Initiative As IRange)           : Set p_CurrentInitiative = n_Initiative         : End Property
-Public Property Let Attacks(n_Attacks              As Attacks)         : Set p_Attacks           = n_Attacks            : End Property
+Public Property Let Attacks(n_Attacks              As Attacks)          : Set p_Attacks           = n_Attacks            : End Property
 
-Public Property Get PropertyCount()                As Long             : Let PropertyCount       = p_PropertyCount      : End Property
+Public Property Get PropertyCount()                As Long              : Let PropertyCount       = p_PropertyCount      : End Property
 
-Public Property Get Definition()                   As FumonDefinition  : Set Definition          = p_Definition         : End Property
+Public Property Get Definition()                   As FumonDefinition   : Set Definition          = p_Definition         : End Property
 Public Property Get Number()                       As IRange            : Set Number              = p_Number             : End Property
 Public Property Get Level()                        As IRange            : Set Level               = p_Level              : End Property
 Public Property Get Expirience()                   As IRange            : Set Expirience          = p_Expirience         : End Property
@@ -55,7 +55,7 @@ Public Property Get CurrentDefense()               As IRange            : Set Cu
 Public Property Get CurrentSpAttack()              As IRange            : Set CurrentSpAttack     = p_CurrentSpAttack    : End Property
 Public Property Get CurrentSpDefense()             As IRange            : Set CurrentSpDefense    = p_CurrentSpDefense   : End Property
 Public Property Get CurrentInitiative()            As IRange            : Set CurrentInitiative   = p_CurrentInitiative  : End Property
-Public Property Get Attacks()                      As Attacks          : Set Attacks             = p_Attacks            : End Property
+Public Property Get Attacks()                      As Attacks           : Set Attacks             = p_Attacks            : End Property
 
 
 Public Function CreateFromObject(ByVal Rng As IRange, ByVal Definition As FumonDefinition, ByVal Level As Long) As Fumon

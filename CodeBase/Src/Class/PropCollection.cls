@@ -98,6 +98,17 @@ Public Function ObjectByName(ByVal Name As String) As Object
     Error:
 End Function
 
+Public Function Properties(ByVal Property As String) As Variant
+    Dim i As Long
+    Dim ReturnArr As Variant
+    ReDim ReturnArr(0)
+    Erase ReturnArr
+    For i = 0 To Count
+        Call VBGLAdd(ReturnArr, CallByName(Object(i), Property, vbGet))
+    Next i
+    Properties = ReturnArr
+End Function
+
 Private Sub Class_Initialize()
     p_Count = -1
 End Sub
