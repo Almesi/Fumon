@@ -20,25 +20,19 @@ Public Sub InitializeGame()
     Dim NewErrorHandler As std_ErrorHandler
     Set NewErrorHandler = std_ErrorHandler.Create(Shower, Logger)
 
-    Debug.Print "Start: " & Timer - StartTime
-
     Set PlayerSettings = std_ConfigRange.Create(ThisWorkbook.Sheets("Settings"))
     Set CurrentBuild = std_VBProject.Create(ThisWorkbook.VBProject, NewErrorHandler)
     Set AllCallables = std_AllCallables.CreateFromProject(ThisWorkbook.VBProject)
-    Debug.Print "AllCallables: " & Timer - StartTime
 
     Call CreateContextAndWindow(Logger, Shower)
     If IsNothing(CurrentContext) Then Exit Sub
-    Debug.Print "WindowCreation: " & Timer - StartTime
 
     Set MeServer = ConnectToServer(PlayerSettings)
     If IsNothing(MeServer) Then Exit Sub
-    Debug.Print "ServerConnection: " & Timer - StartTime
     
     Set MePlayer = MeServer.GetPlayer(PlayerSettings.Setting("Username"))
     If IsNothing(MePlayer) Then Exit Sub
     MePlayer.MoveBase.DoInteract = True
-    Debug.Print "PlayerCreation: " & Timer - StartTime
 
     Set FactoryTextBox = New VBGLTextBox
     With FactoryTextBox
@@ -47,15 +41,11 @@ Public Sub InitializeGame()
         .Pages          = 1
         .LineOffset     = 0.1!
     End With
-    Debug.Print "FactoryCreation: " & Timer - StartTime
 
     Set FactoryTextBoxProperties = FactoryTextBox.CreateProperties(2, 3)
     Set MeOwner = ServerOwner.Create(MeServer)
-    Debug.Print "ServerOwnerCreation: " & Timer - StartTime
     Call SetUpGameGraphics()
-    Debug.Print "GraphicsSetUp: " & Timer - StartTime
     Call MeServer.Workbook.Close
-    Debug.Print "ClosingBook: " & Timer - StartTime
 End Sub
 
 Private Sub CreateContextAndWindow(ByVal Logger As IDestination, ByVal Shower As IDestination)

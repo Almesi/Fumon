@@ -51,11 +51,11 @@ Private Function GetPlayerData(ByVal Texture As VBGLTexture, ByRef MapData() As 
         For x = 0 To USize(MapData, 2)
             Index = MapData(y, x)
             If Index <> -1 Then
-                Dim SpriteIndex As Long
+                Dim SpriteName As String
                 Dim Player As IPlayer
                 Set Player = MeServer.Player(Index)
-                SpriteIndex = PlayerIndex(Index, Player.MoveBase.LookDirection.Value)
-                Call AddTriangles(ReturnArr, x, y, 0.5, Texture.SubTexture(SpriteIndex), ScreenSpriteX, ScreenSpriteY)
+                SpriteName = PlayerName(Index, Player.MoveBase.LookDirection.Value)
+                Call AddTriangles(ReturnArr, x, y, 0.5, Texture.SubTextureID(SpriteName), ScreenSpriteX, ScreenSpriteY)
             End If
         Next x
     Next y
@@ -105,13 +105,13 @@ Private Sub AddVertex(ByRef Arr() As Single, ByVal x As Single, ByVal y As Singl
     Call VBGLMerge(Arr, Temp)
 End Sub
 
-Private Function PlayerIndex(ByVal Index As Long, ByVal Direction As xlDirection) As Long
-    Dim SpritesPerPlayer As Long
-    SpritesPerPlayer = 6
+Private Function PlayerName(ByVal Index As Long, ByVal Direction As xlDirection) As String
+    Dim SpriteNameOffset As Long
+    SpriteNameOffset = 6
     Select Case Direction
-        Case xlUp    : PlayerIndex = Index * SpritesPerPlayer + 0
-        Case xlLeft  : PlayerIndex = Index * SpritesPerPlayer + 1
-        Case xlDown  : PlayerIndex = Index * SpritesPerPlayer + 2
-        Case xlRight : PlayerIndex = Index * SpritesPerPlayer + 3
+        Case xlUp    : PlayerName = PlayersStart.Offset(Index, SpriteNameOffset).Value & "Up"
+        Case xlLeft  : PlayerName = PlayersStart.Offset(Index, SpriteNameOffset).Value & "Left"
+        Case xlDown  : PlayerName = PlayersStart.Offset(Index, SpriteNameOffset).Value & "Down"
+        Case xlRight : PlayerName = PlayersStart.Offset(Index, SpriteNameOffset).Value & "Right"
     End Select
 End Function
