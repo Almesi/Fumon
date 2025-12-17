@@ -36,9 +36,9 @@ Public Function SetUpFightGraphics() As VBGLRenderObject
 End Function
 
 Public Sub UpdateFight(ByVal MyFight As Fight, ByVal p1Moves As MoveDecision, ByVal p2Moves As MoveDecision, Optional DialogName As String = Empty, Optional DialogText As String = Empty)
+    Dim MyFighter As IPlayer
     Dim Fumon1 As Fumon
     Dim Fumon2 As Fumon
-    Dim MyFighter As IPlayer
 
     If MyFight.p2Fighter Is MePlayer Then
         Set MyFighter = MyFight.p1Fighter
@@ -218,7 +218,7 @@ Private Function GetButtons() As VBGLTextBox
     Fonts(0).Text = "Attacks"   & vbCrLf
     Fonts(1).Text = "Fumons"    & vbCrLf
     Fonts(2).Text = "Inventory" & vbCrLf
-    Fonts(3).Text = "Flee"
+    Fonts(3).Text = "Retreat"
     Dim Temp As VBGLProperties
     Set Temp = FactoryTextBoxProperties.Clone()
     Call Temp.LetValueFamily("TopLeft*"     , -1.0!, +1.0!, +0.0!)
@@ -250,10 +250,13 @@ End Function
 Private Function HistoryText(ByVal MoveDec As MoveDecision, ByVal Player As IPlayer) As String
     Dim Value As Variant
     Dim Move As FightMove
+    Dim Success As Boolean
     If IsSomething(MoveDec) Then
         Set Value = MoveDec.Value
         Move = MoveDec.Move
+        Success = MoveDec.Success
     Else
+        Success = True
         Move = FightMove.FightMoveNothing
     End If
 
@@ -261,15 +264,25 @@ Private Function HistoryText(ByVal MoveDec As MoveDecision, ByVal Player As IPla
     Select Case TypeName(Value)
         Case "Attack" : Name = Value.Name
         Case "Fumon"  : Name = Value.Definition.Name
-        Case "Item"   : Name = Value.Name
+        Case "Item"   : Name = Value.Definition.Name
     End Select
     Dim PlayerName As String
     PlayerName = Player.PlayerBase.Name.Value
-    Select Case Move
-        Case FightMove.FightMoveAttack      : HistoryText = PlayerName & " used Attack " & Name
-        Case FightMove.FightMoveFlee        : HistoryText = PlayerName & " tried to flee"
-        Case FightMove.FightMoveChangeFumon : HistoryText = PlayerName & " changed to Fumon " & Name
-        Case FightMove.FightMoveNothing     : HistoryText = PlayerName & " skipped a turn"
-        Case FightMove.FightMoveItem        : HistoryText = PlayerName & " used Item " & Name
-    End Select
+    If Success Then
+        Select Case Move
+            Case FightMove.FightMoveAttack      : HistoryText = PlayerName & " used Attack " & Name
+            Case FightMove.FightMoveFlee        : HistoryText = PlayerName & " fled"
+            Case FightMove.FightMoveChangeFumon : HistoryText = PlayerName & " changed to Fumon " & Name
+            Case FightMove.FightMoveNothing     : HistoryText = PlayerName & " skipped a turn"
+            Case FightMove.FightMoveItem        : HistoryText = PlayerName & " used Item " & Name
+        End Select
+    Else
+        Select Case Move
+            Case FightMove.FightMoveAttack      : HistoryText = PlayerName & " missed the Attack " & Name
+            Case FightMove.FightMoveFlee        : HistoryText = PlayerName & " failed to flee"
+            Case FightMove.FightMoveChangeFumon : HistoryText = PlayerName & " failed to change Fumon to " & Name
+            Case FightMove.FightMoveNothing     : HistoryText = PlayerName & " skipped a turn"
+            Case FightMove.FightMoveItem        : HistoryText = PlayerName & " failed to use Item " & Name
+        End Select
+    End If
 End Function

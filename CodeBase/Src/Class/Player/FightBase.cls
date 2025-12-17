@@ -23,14 +23,14 @@ Private p_Fumons       As Fumons
 Private p_Items        As Items
 
 Public Property Let AI(ByVal n_AI                        As IAI)        : Set p_AI           = n_AI           : End Property
-Public Property Let CurrentMove(ByVal n_CurrentMove      As IRange)      : Set p_CurrentMove  = n_CurrentMove  : End Property
-Public Property Let CurrentValue(ByVal n_CurrentValue    As IRange)      : Set p_CurrentValue = n_CurrentValue : End Property
+Public Property Let CurrentMove(ByVal n_CurrentMove      As IRange)     : Set p_CurrentMove  = n_CurrentMove  : End Property
+Public Property Let CurrentValue(ByVal n_CurrentValue    As IRange)     : Set p_CurrentValue = n_CurrentValue : End Property
 Public Property Let Fumons(ByVal n_Fumons                As Fumons)     : Set p_Fumons       = n_Fumons       : End Property
 Public Property Let Items(ByVal n_Items                  As Items)      : Set p_Items        = n_Items        : End Property
 
 Public Property Get AI()                                 As IAI         : Set AI             = p_AI           : End Property
-Public Property Get CurrentMove()                        As IRange       : Set CurrentMove    = p_CurrentMove  : End Property
-Public Property Get CurrentValue()                       As IRange       : Set CurrentValue   = p_CurrentValue : End Property
+Public Property Get CurrentMove()                        As IRange      : Set CurrentMove    = p_CurrentMove  : End Property
+Public Property Get CurrentValue()                       As IRange      : Set CurrentValue   = p_CurrentValue : End Property
 Public Property Get Fumons()                             As Fumons      : Set Fumons         = p_Fumons       : End Property
 Public Property Get Items()                              As Items       : Set Items          = p_Items        : End Property
 
@@ -43,7 +43,7 @@ Public Function Create(ByVal Rng As IRange, ByVal FumonDefinitions As PropCollec
         .CurrentMove          = Rng.Offset(0, 1)
         .CurrentValue         = Rng.Offset(0, 2)
         .Fumons               = TempFumons.Create(Rng.Offset(0, 3), FumonDefinitions)
-        .Items                = TempItems.Create(Rng.Offset(0, 101), ItemDefinitions)
+        .Items                = TempItems.Create(Rng.Offset(0, 115), ItemDefinitions)
         .CurrentMove.Value    = FightMove.FightMoveNothing
         .CurrentValue.Value   = -1
     End With

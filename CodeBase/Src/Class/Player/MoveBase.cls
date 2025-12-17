@@ -141,7 +141,7 @@ Private Sub TriggerEvent()
     Dim Spawner    As FumonSpawner : Set Spawner   = TileRange.Spawner
     
     If IsSomething(Spawner) Then
-        Call StartFightWithWilPlayer(GetPlayer(PlayerBase.Number.Value), Spawner)
+        Call StartFightWithWildPlayer(GetPlayer(PlayerBase.Number.Value), Spawner)
     End If
     If IsSomething(Script) Then
         If Script.Active = 0 Then

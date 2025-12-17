@@ -13,7 +13,7 @@ Option Explicit
 
 
 
-Private Const p_PropertyCount As Long = 13
+Private Const p_PropertyCount As Long = 14
 Private Const MaximumLevel    As Long = 100
 Private Const ExpFactor       As Single = 0.01
 
@@ -27,6 +27,7 @@ Private p_CurrentDefense     As IRange
 Private p_CurrentSpAttack    As IRange
 Private p_CurrentSpDefense   As IRange
 Private p_CurrentInitiative  As IRange
+Private p_CurrentEffect      As IRange
 Private p_Attacks            As Attacks
 
 
@@ -41,6 +42,7 @@ Public Property Let CurrentDefense(n_Defense       As IRange)           : Set p_
 Public Property Let CurrentSpAttack(n_SpAttack     As IRange)           : Set p_CurrentSpAttack   = n_SpAttack           : End Property
 Public Property Let CurrentSpDefense(n_SpDefense   As IRange)           : Set p_CurrentSpDefense  = n_SpDefense          : End Property
 Public Property Let CurrentInitiative(n_Initiative As IRange)           : Set p_CurrentInitiative = n_Initiative         : End Property
+Public Property Let CurrentEffect(n_Effect         As IRange)           : Set p_CurrentEffect     = n_Effect             : End Property
 Public Property Let Attacks(n_Attacks              As Attacks)          : Set p_Attacks           = n_Attacks            : End Property
 
 Public Property Get PropertyCount()                As Long              : Let PropertyCount       = p_PropertyCount      : End Property
@@ -55,6 +57,7 @@ Public Property Get CurrentDefense()               As IRange            : Set Cu
 Public Property Get CurrentSpAttack()              As IRange            : Set CurrentSpAttack     = p_CurrentSpAttack    : End Property
 Public Property Get CurrentSpDefense()             As IRange            : Set CurrentSpDefense    = p_CurrentSpDefense   : End Property
 Public Property Get CurrentInitiative()            As IRange            : Set CurrentInitiative   = p_CurrentInitiative  : End Property
+Public Property Get CurrentEffect()                As IRange            : Set CurrentEffect       = p_CurrentEffect      : End Property
 Public Property Get Attacks()                      As Attacks           : Set Attacks             = p_Attacks            : End Property
 
 
@@ -72,9 +75,10 @@ Public Function CreateFromObject(ByVal Rng As IRange, ByVal Definition As FumonD
         .CurrentSpAttack   = Rng.Offset(0, 6)
         .CurrentSpDefense  = Rng.Offset(0, 7)
         .CurrentInitiative = Rng.Offset(0, 8)
+        .CurrentEffect     = Rng.Offset(0, 9)
         Dim Temp As Attacks
         Set Temp = New Attacks
-        .Attacks           = Temp.CreateFromObject(Rng.Offset(0, 8), Definition, Level)
+        .Attacks           = Temp.CreateFromObject(Rng.Offset(0, 10), Definition, Level)
         .HealAndReset
     End With
 End Function
@@ -100,11 +104,14 @@ Public Function FullName() As String
                " SpD: " & CurrentSpDefense.Value & _
                " Ini: " & CurrentInitiative.Value
 End Function
-
 Public Function FrontName() As String
     FrontName = Definition.Name & "Front"
 End Function
 
+Public Sub HealResetAndRemove()
+    Call HealAndReset()
+    Call RemoveEffect()
+End Sub
 Public Sub HealAndReset()
     Call Heal()
     Call Reset()
@@ -118,6 +125,10 @@ Public Sub Reset()
     CurrentSpAttack.Value   = MaxSpAttack()
     CurrentSpDefense.Value  = MaxSpDefense()
     CurrentInitiative.Value = MaxInitiative()
+End Sub
+
+Public Sub RemoveEffect()
+    CurrentEffect.Value = Empty
 End Sub
 
 Public Sub UpdateLevel()
@@ -141,10 +152,8 @@ Public Function MaxSpDefense()  As Long: MaxSpDefense  = CLng(Definition.SpDefen
 Public Function MaxInitiative() As Long: MaxInitiative = CLng(Definition.Initiative / (Definition.InitiativeModifier ^ (MaximumLevel - Level.Value))) : End Function
 
 Public Sub CheckHealth()
-    Dim Level As Long
-    Level = GetLevel(Expirience.Value)
-    If CurrentHealth.Value > CLng(Definition.Health / (Definition.HealthModifier ^ (MaximumLevel - Level))) Then
-        CurrentHealth.Value = CLng(Definition.Health / (Definition.HealthModifier ^ (MaximumLevel - Level)))
+    If CurrentHealth.Value > CLng(Definition.Health / (Definition.HealthModifier ^ (MaximumLevel - Level.Value))) Then
+        CurrentHealth.Value = CLng(Definition.Health / (Definition.HealthModifier ^ (MaximumLevel - Level.Value)))
     End If
 End Sub
 

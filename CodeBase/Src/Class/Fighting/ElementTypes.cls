@@ -45,14 +45,11 @@ Public Function Create(ByVal Rng As IRange) As ElementTypes
 End Function
 
 Public Function GetFactor(ByVal AttElement As String, ByVal Fumon As Fumon) As Single
-    Dim AttElementIndex As Long
-    Dim DefElement1Index As Long
-    Dim DefElement2Index As Long
-    AttElementIndex  = GetIndex(AttElement)
-    DefElement1Index = GetIndex(Fumon.Definition.Type1) + 1
-    DefElement2Index = GetIndex(Fumon.Definition.Type2) + 1
+    Dim AttElementIndex  As Long : AttElementIndex  = GetIndex(AttElement)
+    Dim DefElement1Index As Long : DefElement1Index = GetIndex(Fumon.Definition.Type1)
+    Dim DefElement2Index As Long : DefElement2Index = GetIndex(Fumon.Definition.Type2)
 
-    If DefElement2Index = 0 Then
+    If DefElement2Index = -1 Then
         GetFactor = Element(AttElementIndex).Offset(DefElement1Index, 0).Value
     Else
         GetFactor = Element(AttElementIndex).Offset(DefElement1Index, 0).Value * Element(AttElementIndex).Offset(DefElement2Index, 0).Value

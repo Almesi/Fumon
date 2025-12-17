@@ -22,21 +22,21 @@ End Property
 Public Property Get Items() As Variant
     Items = p_Items
 End Property
-Public Property Let Items(n_Items As Variant)
+Public Property Let Items(ByVal n_Items As Variant)
     p_Items = n_Items
 End Property
 
-Public Property Get Item(Index As Long) As Item
+Public Property Get Item(ByVal Index As Long) As Item
     Set Item = p_Items(Index)
 End Property
-Public Property Let Item(Index As Long, n_Item As Item)
+Public Property Let Item(ByVal Index As Long, ByVal n_Item As Item)
     Set p_Items(Index) = n_Item
 End Property
 
 Public Property Get Selected() As Long
     Selected = p_Selected
 End Property
-Public Property Let Selected(n_Value As Long)
+Public Property Let Selected(ByVal n_Value As Long)
     p_Selected = n_Value
 End Property
 
@@ -45,7 +45,7 @@ Public Function Count() As Long
 End Function
 
 Public Property Get SelectedItem() As Item
-    SelectedItem = Item(Selected)
+    Set SelectedItem = Item(Selected)
 End Property
 
 Public Sub Increment(ByVal Value As Long)
@@ -61,12 +61,12 @@ Public Sub AddItem(ByVal n_Item As Item)
     Call VBGLAdd(p_Items, n_Item)
 End Sub
 
-Public Function Create(Rng As IRange, ByVal ItemDefinitions As PropCollection) As Items
+Public Function Create(ByVal Rng As IRange, ByVal ItemDefinitions As PropCollection) As Items
     Dim i As Long
     Set Create = New Items
     Dim Temp As Item: Set Temp = New Item
     With Create
-        Do Until Rng.Offset(0, i).Formula = Empty
+        Do Until Rng.Offset(0, i).Formula = ""
             Call .AddItem(Temp.Create(ItemDefinitions.Object(Rng.offset(0, i).Value), Rng.Offset(0, i + 1)))
             i = i + ItemCount
         Loop

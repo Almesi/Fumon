@@ -5,16 +5,17 @@ Option Explicit
 
 Public Function SpawnWildPlayer(ByVal Spawner As FumonSpawner) As IPlayer
     Dim StartRange         As IRange : Set StartRange         = WildPlayersStart
-    Dim Rng                As IRange : Set Rng                = StartRange.Offset(StartRange.GetSelf.Parent.RowCount, 0)
-    Dim OffsetToFirstFumon As Long   : Let OffsetToFirstFumon = 3
+    'Dim Rng                As IRange : Set Rng                = StartRange.Offset(StartRange.GetSelf.Parent.RowCount, 0)
+    Dim Rng                As IRange : Set Rng                = StartRange.Offset(0, 0)
+    Dim OffsetToFirstFumon As Long   : Let OffsetToFirstFumon = 4
     Dim Offset             As Long   : Let Offset             = PlayerBase.Offset + SpecificBase.Offset + MoveBase.Offset + OffsetToFirstFumon
-    Dim Fumon              As Fumon : Set Fumon              = Spawner.Spawn(Rng.Offset(0, Offset))
+    Dim Fumon              As Fumon  : Set Fumon              = Spawner.Spawn(Rng.Offset(0, Offset))
 
     If IsSomething(Fumon) Then
         With MeServer
             Rng.Offset(0, 0).Value  = .Players.Count + 1
             Rng.Offset(0, 1).Value  = Fumon.Definition.Name
-            Rng.Offset(0, 14).Value = AIType.WildAIType
+            Rng.Offset(0, 15).Value = AIType.WildAIType
             Set SpawnWildPlayer = IPlayer.Create(Rng, .FumonDefinitions, .ItemDefinitions, .MapData.Maps, .Scripts)
         End With
     End If
@@ -26,12 +27,10 @@ Private Sub DestroyWildPlayer(ByVal Player As IPlayer)
     Call Rng.GetSelf.Parent.Rng.Rows(Rng.GetSelf.Row).EntireRow.ClearContents
 End Sub
 
-Public Sub StartFightWithWilPlayer(ByVal Player As IPlayer, ByVal Spawner As FumonSpawner)
+Public Sub StartFightWithWildPlayer(ByVal Player As IPlayer, ByVal Spawner As FumonSpawner)
     Dim WildPlayer As IPlayer
     Set WildPlayer = SpawnWildPlayer(Spawner)
     If IsSomething(WildPlayer) Then
-        Debug.Assert False
-
         Dim Index  As Long    : Let Index  = MeServer.Players.Add(WildPlayer)
         Dim Winner As IPlayer : Set Winner = FightMoneyExp(Player, WildPlayer)
         Call MeServer.Players.Remove(Index)
@@ -68,7 +67,7 @@ Public Sub DoFightAndWalkBack(ByVal Player1 As IPlayer, ByVal Player2 As IPlayer
     Dim p1Number      As Long        : p1Number = Player1.PlayerBase.Number.Value
     Dim p2Number      As Long        : p2Number = Player2.PlayerBase.Number.Value
     Dim MoveBase      As MoveBase    : Set MoveBase = Player1.MoveBase
-    Dim PrevLook      As xlDirection : PrevLook = MoveBase.LookDirection
+    Dim PrevLook      As xlDirection : PrevLook = MoveBase.LookDirection.Value
 
     Call FindPath(p1Number, p2Number, x, y)
     Call MoveBase.MovePath(x, y)

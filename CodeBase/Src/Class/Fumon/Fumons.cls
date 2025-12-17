@@ -82,7 +82,7 @@ Public Function Create(ByVal Rng As IRange, ByVal FumonDefinitions As PropCollec
     Dim Temp As Fumon: Set Temp = New Fumon
     With Create
         For i = 0 To TotalFumons
-            If Rng.Offset(0, i * Temp.PropertyCount).Formula = "" Then Exit For
+            If Rng.Offset(0, i * Temp.PropertyCount).Value = "" Then Exit For
             .Fumon(i) = Temp.Create(Rng.Offset(0, i * Temp.PropertyCount), FumonDefinitions)
             Call .Fumon(i).HealAndReset()
         Next i
@@ -105,6 +105,7 @@ Public Sub Swap(ByVal Index1 As Long, ByVal Index2 As Long)
     Call SwapRange(Fumon1, Fumon2, "CurrentSpAttack")
     Call SwapRange(Fumon1, Fumon2, "CurrentSpDefense")
     Call SwapRange(Fumon1, Fumon2, "CurrentInitiative")
+    Call SwapRange(Fumon1, Fumon2, "CurrentEffect")
     Call SwapRange(Fumon1, Fumon2, "Attacks")
 End Sub
 
@@ -119,6 +120,7 @@ Private Sub SwapRange(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon, ByVal Prop A
         Case "CurrentSpAttack"   : Set Rng1 = Fumon1.CurrentSpAttack   : Set Rng2 = Fumon2.CurrentSpAttack
         Case "CurrentSpDefense"  : Set Rng1 = Fumon1.CurrentSpDefense  : Set Rng2 = Fumon2.CurrentSpDefense
         Case "CurrentInitiative" : Set Rng1 = Fumon1.CurrentInitiative : Set Rng2 = Fumon2.CurrentInitiative
+        Case "CurrentEffect"     : Set Rng1 = Fumon1.CurrentEffect     : Set Rng2 = Fumon2.CurrentEffect
         Case "Attacks"
             Call SwapAttacks(Fumon1, Fumon2)
             Exit Sub
@@ -142,6 +144,7 @@ Private Sub SwapRange(ByVal Fumon1 As Fumon, ByVal Fumon2 As Fumon, ByVal Prop A
         Case "CurrentSpAttack"   : Fumon1.CurrentSpAttack   = Rng1 : Fumon2.CurrentSpAttack   = Rng2
         Case "CurrentSpDefense"  : Fumon1.CurrentSpDefense  = Rng1 : Fumon2.CurrentSpDefense  = Rng2
         Case "CurrentInitiative" : Fumon1.CurrentInitiative = Rng1 : Fumon2.CurrentInitiative = Rng2
+        Case "CurrentEffect"     : Fumon1.CurrentEffect     = Rng1 : Fumon2.CurrentEffect     = Rng2
     End Select
 End Sub
 

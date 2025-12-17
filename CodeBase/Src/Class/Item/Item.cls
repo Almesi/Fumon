@@ -25,7 +25,7 @@ Public Property Get Amount()                As IRange           : Set Amount    
 
 
 
-Public Function Create(Definition As ItemDefinition, Amount As IRange) As Item
+Public Function Create(ByVal Definition As ItemDefinition, ByVal Amount As IRange) As Item
     Set Create = New Item
     With Create
         .Definition = Definition
@@ -33,12 +33,13 @@ Public Function Create(Definition As ItemDefinition, Amount As IRange) As Item
     End With
 End Function
 
-Public Sub Use()
-    If p_Amount > 0 Then
-        ' Use it
-        p_Amount = p_Amount - 1
+Public Function Use() As Boolean
+    If Amount.Value > 0 Then
+        Amount.Value = Amount.Value - 1
+        Call Definition.Command.Run()
+        Use = True
     End If
-End Sub
+End Function
 
 Public Function FullName() As String
     FullName = Definition.Name & " : " & Amount.Value()

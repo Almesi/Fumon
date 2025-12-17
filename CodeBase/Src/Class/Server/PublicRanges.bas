@@ -43,6 +43,12 @@ Public Function CreateFasterRange(ByVal StartRange As Range) As FasterRange
     Dim RowOffset    As Long  : Let RowOffset    = RowRange.Row - StartRange.Row
     Dim ColumnOffset As Long  : Let ColumnOffset = ColumnRange.Column - StartRange.Column
 
-    If RowOffset > 16384 Then RowOffset = 16384 ' Limit so nobody exceeds to many items
+    If RowOffset > 16384 Then
+        Dim i As Long
+        Do Until StartRange.Offset(i, 0).Formula = Empty
+            i = i + 1
+        Loop
+        RowOffset = i
+    End If
     Set CreateFasterRange = FasterRange.CreateFromRange(Range(StartRange, StartRange.Offset(RowOffset, ColumnOffset)))
 End Function

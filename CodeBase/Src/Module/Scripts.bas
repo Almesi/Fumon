@@ -61,6 +61,10 @@ Public Function GetPlayer(ByVal Index As Long) As IPlayer
     Set GetPlayer = MeServer.Player(Index)
 End Function
 
+Public Function GetMePlayer() As IPlayer
+    Set GetMePlayer = MePlayer
+End Function
+
 Public Function GetSpawner(ByVal Index As Long) As FumonSpawner
     Set GetSpawner = MeServer.FumonSpawner(Index)
 End Function
@@ -78,19 +82,23 @@ Public Function MakeArgumentArr(ByVal Text As String) As Variant()
     MakeArgumentArr = ReturnArr
 End Function
 
-Public Sub UseItem(Itemm As Item)
+Public Sub UseItem(ByVal Itemm As Item)
     Call Itemm.ItemDefinition.Script.Run()
 End Sub
 
-Public Function GetPlayerFumon(Index As Long, FumonIndex As Long) As Fumon
-    Set GetPlayerFumon = MeServer.Player(Index).Fumons.Fumon(FumonIndex)
+Public Function GetPlayerFumon(ByVal Index As Long, ByVal FumonIndex As Long) As Fumon
+    Set GetPlayerFumon = MeServer.Player(Index).FightBase.Fumons.Fumon(FumonIndex)
 End Function
 
-Public Sub HealPlayerFumon(Index As Long, FumonIndex As Long, Value As Long)
+Public Sub HealPlayerFumon(ByVal Index As Long, ByVal FumonIndex As Long, ByVal Value As Long)
     Dim Fumon As Fumon
     Set Fumon = GetPlayerFumon(Index, FumonIndex)
-    Fumon.Health = Fumon.Health + Value
+    Fumon.CurrentHealth.Value = Fumon.CurrentHealth.Value + Value
     Call Fumon.CheckHealth()
+End Sub
+
+Public Sub DoNothing()
+
 End Sub
 
 Public Function TilesInFront(ByVal Index As Long, ByVal Offset As Long) As IRange

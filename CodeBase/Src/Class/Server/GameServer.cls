@@ -69,7 +69,7 @@ Public Function Create(ByVal WB As WorkBook) As GameServer
         .Scripts          = InitScripts(WB)
         .Attacks          = InitAttacks(WB)
         .FumonDefinitions = InitFumonDefinitions(WB, .Attacks)
-        .ItemDefinitions  = InitItemDefinitions(WB, .Scripts)
+        .ItemDefinitions  = InitItemDefinitions(WB)
         .FumonSpawners    = InitFumonSpawners(WB, .FumonDefinitions)
         .Tiles            = InitTiles(WB)
         .MapData          = InitMapData(WB, .Tiles)
@@ -122,9 +122,9 @@ Private Function InitFumonDefinitions(ByVal WB As Workbook, ByVal nAttacks As Pr
     Dim Rng As IRange : Set Rng = FumonsStart
     Set InitFumonDefinitions = InitGroup(Rng, New FumonDefinition, nAttacks)
 End Function
-Private Function InitItemDefinitions(ByVal WB As Workbook, ByVal nScripts As PropCollection) As PropCollection
+Private Function InitItemDefinitions(ByVal WB As Workbook) As PropCollection
     Dim Rng As IRange : Set Rng = ItemsStart
-    Set InitItemDefinitions = InitGroup(Rng, New ItemDefinition, nScripts)
+    Set InitItemDefinitions = InitGroup(Rng, New ItemDefinition)
 End Function
 Private Function InitFumonSpawners(ByVal WB As Workbook, ByVal nFumonDefinitions As PropCollection) As PropCollection
     Dim Rng As IRange : Set Rng = FumonSpawnersStart

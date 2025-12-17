@@ -99,8 +99,8 @@ Public Function SetUpGameGraphics() As Boolean
     Call SetForegroundWindow(CurrentContext.CurrentWindow.ID)
 
     ' In Reversed order, so that addrenderobject will not recieve nothing, as the next renderobject is not created yet
-    Set FarLeftSideFrame = VBGLFrame.CreateFromWindow(0   , 0, 0.25, 1, 0   , 0, 0.25, 1, CurrentContext.CurrentWindow)
-    Set LeftSideFrame    = VBGLFrame.CreateFromWindow(0.25, 0, 0.25, 1, 0.25, 0, 0.25, 1, CurrentContext.CurrentWindow)
+    Set FarLeftSideFrame = VBGLFrame.CreateFromWindow(0, 0, 1, 1,  0, 0, 1, 1, CurrentContext.CurrentWindow)
+    Set LeftSideFrame    = VBGLFrame.CreateFromWindow(1, 0, 1, 1,  1, 0, 1, 1, CurrentContext.CurrentWindow)
     Dim StartTime As Single
     StartTime = Timer
     Debug.Print "Frames: " & Timer - StartTime
@@ -139,7 +139,6 @@ Public Function SetUpGameGraphics() As Boolean
     Call VBGLCallbackFunc("PassiveMotionFunc")
     Call VBGLCallbackFunc("MouseWheelFunc")
     Call AddRenderObject(StartRenderObject)
-    Debug.Assert False
     Call CurrentContext.MainLoop()
     MeServer.MapData.ServerStarter.Formula = Empty
     SetUpGameGraphics = True
@@ -283,13 +282,16 @@ Public Function CreateList(ByVal Base As Object, _
         End If
 
         Call CreateList.AddElement(i, CreateSprite(Texture, SubTextureName) , WhiteBackground)
+        Call CreateList.SetWidth(i, 0, 0.1)
         Call CreateList.AddElement(i, CreateTextBox(Text, Color)            , WhiteBackground)
+        Call CreateList.SetWidth(i, 1, 0.9)
     Next i
 
     If Base.Count = -1 Then
         Call CreateList.AddRows(0)
         Call CreateList.AddElement(0, CreateTextBox("No " & TypeName(Base) & " yet"), WhiteBackground)
     End If
+    Call CreateList.Build()
 End Function
 
 Public Sub UpdateList(ByVal List As VBGLList, _
@@ -343,7 +345,7 @@ Private Function CreateTextBox(ByVal Text As String, Optional ByVal Color As Var
     Call Temp.LetValueFamily("TopRight*"    , +1.0!, +1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomLeft*"  , -1.0!, -1.0!, +0.0!)
     Call Temp.LetValueFamily("BottomRight*" , +1.0!, -1.0!, +0.0!)
-    Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +0.0!)
+    Call Temp.LetValueFamily("Color*"       , +1.0!, +1.0!, +1.0!, +1.0!)
 
     Dim Fonts() As VBGLFont
     ReDim Fonts(0)
@@ -366,7 +368,8 @@ Private Function UpdateTextBoxText(ByVal Font As VBGLFont, ByVal Text As String,
     Dim BlackColor(3) As Single
     BlackColor(3) = 1
     With Item
-        Font.Scalee    = 10
+        Font.ScaleX    = 1
+        Font.ScaleY    = 10
         Font.Text      = Text
         Font.FontColor = IIF(IsMissing(Color), BlackColor, Color)
     End With

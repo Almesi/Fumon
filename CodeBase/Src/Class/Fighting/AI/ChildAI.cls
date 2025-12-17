@@ -17,9 +17,9 @@ Private Function IAI_Decide(ByVal MyFight As Fight, ByVal Caller As FightBase, B
     Dim FirstFumon As Fumon
     Set FirstFumon = Caller.Fumons.FirstAlive
     If IsSomething(FirstFumon) Then
-        Set IAI_Decide = MoveDecision.Create(FightMove.FightMoveAttack, FirstFumon.Attacks.Attack(0))
+        Set IAI_Decide = MoveDecision.Create(FightMove.FightMoveAttack, FirstFumon.Attacks.Attack(0), 1)
     Else
-        Set IAI_Decide = MoveDecision.Create(FightMove.FightMoveNothing, Nothing)
+        Set IAI_Decide = MoveDecision.Create(FightMove.FightMoveNothing, Nothing, 0)
     End If
 End Function
 

@@ -89,14 +89,23 @@ Public Function Create(ByVal Start As IRange, ByVal Player1 As IPlayer, ByVal Pl
 End Function
 
 Public Sub HandleTurn(ByRef WinnerPlayer As IPlayer, ByRef LoserPlayer As IPlayer, ByRef p1Moves As MoveDecision, ByRef p2Moves As MoveDecision)
-    Dim Speed1 As Long : Speed1 = p1Fumon.CurrentInitiative.Value
-    Dim Speed2 As Long : Speed2 = p2Fumon.CurrentInitiative.Value
-    Do Until Speed1 <> Speed2
-        Speed1 = RandomNumber
-    Loop
-
     Call GetMoves(p1Moves, p2Moves)
-    If Speed1 > Speed2 Then
+
+    Dim Player1First As Boolean
+    If p1Moves.Priority > p2Moves.Priority Then
+        Player1First = True
+    ElseIf p1Moves.Priority < p2Moves.Priority Then
+        Player1First = False
+    Else
+        Dim Speed1 As Long : Speed1 = p1Fumon.CurrentInitiative.Value
+        Dim Speed2 As Long : Speed2 = p2Fumon.CurrentInitiative.Value
+        Do Until Speed1 <> Speed2
+            Speed1 = RandomNumber
+        Loop
+        Player1First = Speed1 > Speed2
+    End If
+
+    If Player1First Then
         Call DoRound(p1Fighter, p2Fighter, p1Moves, p2Moves)
     Else
         Call DoRound(p2Fighter, p1Fighter, p2Moves, p1Moves)
@@ -151,20 +160,22 @@ End Sub
     End Sub
     
     Private Sub DoAction(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal CurrentMove As MoveDecision)
+        Dim Success As Boolean
         If User Is p1Fighter Then
             p1Finished.Value = 1
         Else
             p2Finished.Value = 1
         End If
         Select Case CurrentMove.Move
-            Case FightMove.FightMoveAttack      : Call Attack(User, Victim, CurrentMove.Value)
-            Case FightMove.FightMoveFlee        : Call Flee(User, Victim)
-            Case FightMove.FightMoveItem        : Call UseItem(User, Victim, CurrentMove.Value)
-            Case FightMove.FightMoveChangeFumon : Call ChangeFumon(User, Victim, CurrentMove.Value)
+            Case FightMove.FightMoveAttack      : Success = Attack(User, Victim, CurrentMove.Value)
+            Case FightMove.FightMoveFlee        : Success = Flee(User, Victim)
+            Case FightMove.FightMoveItem        : Success = UseItem(User, Victim, CurrentMove.Value)
+            Case FightMove.FightMoveChangeFumon : Success = ChangeFumon(User, Victim, CurrentMove.Value)
         End Select
+        CurrentMove.Success = Success
     End Sub
     
-    Private Sub ChangeFumon(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal NewMon As Fumon)
+    Private Function ChangeFumon(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal NewMon As Fumon)
         Dim Index As Long
         Index = User.FightBase.Fumons.GetFumonIndex(NewMon)
 
@@ -173,21 +184,23 @@ End Sub
         Else
             mon2.Value = Index
         End If
-    End Sub
+        ChangeFumon = True
+    End Function
     
-    Private Sub Attack(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal UsedAttack As Attack)
-        Call UsedAttack.Use(GetFumon(User), GetFumon(Victim))
-    End Sub
+    Private Function Attack(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal UsedAttack As Attack)
+        Attack = UsedAttack.Use(GetFumon(User), GetFumon(Victim))
+    End Function
     
-    Private Sub UseItem(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal UsedItem As Item)
-        Call UsedItem.Use()
-    End Sub
+    Private Function UseItem(ByVal User As IPlayer, ByVal Victim As IPlayer, ByVal UsedItem As Item)
+        UseItem = UsedItem.Use()
+    End Function
     
-    Private Function Flee(ByVal User As IPlayer, ByVal Victim As IPlayer) As IPlayer
+    Private Function Flee(ByVal User As IPlayer, ByVal Victim As IPlayer) As Boolean
         If TypeName(User.FightBase.AI) = "HumanAI" And TypeName(Victim.FightBase.AI) = "WildAI" Then
-            Set Flee = User
+            Winner.Value = Victim.PlayerBase.Number.Value
+            Flee = True
         Else
-            Call Say("Cannot flee from a trainer battle")
+            Call Say("GAME", "Cannot flee from a trainer battle")
         End If
     End Function
 '

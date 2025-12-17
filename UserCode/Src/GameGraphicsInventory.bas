@@ -34,7 +34,7 @@ Private Function CreateInput(ByVal Base As Object, _
     Set Temp = New VBGLGeneralInput
 
     Dim GetSelected As std_Callable
-    Set GetSelected = CreateFixedCallable("$0.Selected()", MePlayer.FightBase.Items)
+    Set GetSelected = CreateFixedCallable("$0.Selected()", Base)
     
     Set UpdateInventory = CreateFixedCallable("UpdateList($0, $1, $2, $3, $4, $5, $6)", InventoryList, Base, Texture, TextObject.SetAutoExecute(False), NameObject.SetAutoExecute(False), ColorObject, GetSelected)
     Call Temp.AddKeyUp(Asc("w") , CreateFixedCallable("$0.Selected(+1)", Base))
@@ -42,10 +42,8 @@ Private Function CreateInput(ByVal Base As Object, _
     Call Temp.AddKeyUp(Asc("w") , UpdateInventory)
     Call Temp.AddKeyUp(Asc("s") , UpdateInventory)
     
-    Dim ItemCallback As std_Callable
-    Set ItemCallback = CreateFixedCallable("$0.SelectedItem()", MePlayer.FightBase.Items)
     Call Temp.AddKeyUp(Asc(" ") , std_Callable.Create(MePlayer.FightBase.CurrentMove , "Value", vbLet, 0).Bind(FightMove.FightMoveItem).FixArgs(True))
-    Call Temp.AddKeyUp(Asc(" ") , std_Callable.Create(MePlayer.FightBase.CurrentValue, "Value", vbLet, 0).Bind(ItemCallback).FixArgs(True))
+    Call Temp.AddKeyUp(Asc(" ") , std_Callable.Create(MePlayer.FightBase.CurrentValue, "Value", vbLet, 0).Bind(GetSelected).FixArgs(True))
     Call Temp.AddKeyUp(Asc(" ") , CreateFixedCallable("RemoveDrawableFromRenderObject()"))
     Call Temp.AddKeyUp(27       , CreateFixedCallable("RemoveDrawableFromRenderObject()"))
 

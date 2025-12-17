@@ -7,7 +7,7 @@ Private AttackList As VBGLList
 Public UpdateAttack As std_Callable
 
 Public Function SetUpAttackGraphics() As VBGLRenderObject
-    Dim X              As Single       : Let X              = -0.75!
+    Dim X              As Single       : Let X              = 0
     Dim Base           As std_Callable : Set Base           = CreateFixedCallable("$0.SelectedFumon.Attacks()", MePlayer.FightBase.Fumons)
     Dim Texture        As VBGLTexture  : Set Texture        = GameTextures.ObjectByName("Attacks")
     Dim TextObject     As std_Callable : Set TextObject     = CreateUnFixedCallable("$0.Attack($1).FullName()", Base, 0)

@@ -55,10 +55,12 @@ Public Function CreateFromObject(ByVal Rng As IRange, ByVal Definition As FumonD
     Dim MyAttacks() As Attack
     MyAttacks = GetAttacksFromDefinition(Definition, Level)
     Dim i As Long
-    For i = 0 To Count
-        If i > USize(MyAttacks) Then Exit For
-        Rng.Offset(0, i).Value = MyAttacks(i).Number
-    Next i
+    If Rng.Offset(0, 0).Value = "" Then
+        For i = 0 To Count
+            If i > USize(MyAttacks) Then Exit For
+            Rng.Offset(0, i).Value = MyAttacks(i).Number
+        Next i
+    End If
     Set CreateFromObject = Create(Rng)
 End Function
 
