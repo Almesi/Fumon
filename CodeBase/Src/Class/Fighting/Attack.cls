@@ -146,8 +146,3 @@ Public Sub NegativeValue(ByVal Mon As Fumon)
     If Mon.CurrentSpDefense.Value  < 0 Then Mon.CurrentSpDefense.Value  = 0
     If Mon.CurrentInitiative.Value < 0 Then Mon.CurrentInitiative.Value = 0
 End Sub
-
-Private Function RandomNumber() As Long
-    Randomize Timer
-    RandomNumber = Int((100 - 0 + 1) * Rnd + 0)
-End Function

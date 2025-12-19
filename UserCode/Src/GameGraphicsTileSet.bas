@@ -3,8 +3,8 @@ Attribute VB_Name = "GameGraphicsTileSet"
 
 Option Explicit
 
-Public  TileSet As VBGLDualGrid
-Public  PlayerPositions As VBGLMesh
+Public TileSet As VBGLDualGrid
+Public PlayerPositions As VBGLMesh
 
 
 Public Sub SetUpTileSet()

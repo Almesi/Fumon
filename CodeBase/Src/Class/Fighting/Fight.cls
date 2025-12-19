@@ -105,6 +105,21 @@ Public Sub HandleTurn(ByRef WinnerPlayer As IPlayer, ByRef LoserPlayer As IPlaye
         Player1First = Speed1 > Speed2
     End If
 
+    Dim StatusEffect As StatusEffect
+    Set StatusEffect = New StatusEffect
+    Dim Rand As Long
+    Rand = RandomNumber()
+    If Rand < 10 Then
+        Call StatusEffect.ClearEffect(p1Fumon, -1)
+    End If
+    Rand = RandomNumber()
+    If Rand < 10 Then
+        Call StatusEffect.ClearEffect(p2Fumon, -1)
+    End If
+
+    Call StatusEffect.DoEffect(p1Fumon, p1Moves)
+    Call StatusEffect.DoEffect(p2Fumon, p2Moves)
+
     If Player1First Then
         Call DoRound(p1Fighter, p2Fighter, p1Moves, p2Moves)
     Else
@@ -275,12 +290,6 @@ Private Function GetFumon(ByVal Player As IPlayer)
         Set GetFumon = p2Fumon
     End If
 End Function
-
-Private Function RandomNumber() As Long
-    Randomize Timer
-    RandomNumber = Int((100 - 0 + 1) * Rnd + 0)
-End Function
-
 
 Private Sub GetMoves(ByRef p1Moves As MoveDecision, ByRef p2Moves As MoveDecision)
     Set p1Moves = p1FightBase.DecideMove(Me, p2FightBase)

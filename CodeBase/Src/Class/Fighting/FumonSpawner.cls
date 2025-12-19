@@ -118,11 +118,6 @@ Private Function CreateFumon(ByVal Rng As IRange, ByVal Definition As FumonDefin
     End With
 End Function
 
-Private Function RandomNumber(ByVal Lower As Long, ByVal Upper As Long) As Long
-    Randomize Timer
-    RandomNumber = Int((Upper - Lower + 1) * Rnd + Lower)
-End Function
-
 Private Sub Class_Initialize()
     Size = -1
 End Sub

@@ -101,6 +101,11 @@ Public Sub DoNothing()
 
 End Sub
 
+Public Function RandomNumber(Optional ByVal Min As Long = 0, Optional ByVal Max As Long = 100) As Long
+    Randomize Timer
+    RandomNumber = Int((Max - Min + 1) * Rnd + Min)
+End Function
+
 Public Function TilesInFront(ByVal Index As Long, ByVal Offset As Long) As IRange
     Call MeServer.Player(Index).TileInFront(Offset)
 End Function

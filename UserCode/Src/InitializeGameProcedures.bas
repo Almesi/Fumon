@@ -8,7 +8,7 @@ Public MeOwner        As ServerOwner
 Public AllCallables   As std_AllCallables
 
 
-Public Sub InitializeGame()
+Public Sub InitializeGame(ByVal Path As String)
     Dim StartTime As Single
     StartTime = Timer
     Dim CurrentBuild As std_VBProject
@@ -24,7 +24,7 @@ Public Sub InitializeGame()
     Set CurrentBuild = std_VBProject.Create(ThisWorkbook.VBProject, NewErrorHandler)
     Set AllCallables = std_AllCallables.CreateFromProject(ThisWorkbook.VBProject)
 
-    Call CreateContextAndWindow(Logger, Shower)
+    Call CreateContextAndWindow(Logger, Shower, Path & "CodeBase\Libraries\VBGL\Graphics\Core")
     If IsNothing(CurrentContext) Then Exit Sub
 
     Set MeServer = ConnectToServer(PlayerSettings)
@@ -44,13 +44,13 @@ Public Sub InitializeGame()
 
     Set FactoryTextBoxProperties = FactoryTextBox.CreateProperties(2, 3)
     Set MeOwner = ServerOwner.Create(MeServer)
-    Call SetUpGameGraphics()
+    Call SetUpGameGraphics(Path & "CodeBase\Libraries\VBGL\Graphics\Extensions\Drawables\TextRendering", Path & "CodeBase\Res\Consolas.ttf")
     Call MeServer.Workbook.Close
 End Sub
 
-Private Sub CreateContextAndWindow(ByVal Logger As IDestination, ByVal Shower As IDestination)
+Private Sub CreateContextAndWindow(ByVal Logger As IDestination, ByVal Shower As IDestination, ByVal Path As String)
     If IsSomething(CurrentContext) Then Exit Sub
-    Set CurrentContext = VBGLContext.Create("C:\Users\deallulic\Documents\GitHub\VBGL\Code\Src\Graphics\Core", GLUT_CORE_PROFILE, GLUT_DEBUG, Logger, Shower)
+    Set CurrentContext = VBGLContext.Create(Path, GLUT_CORE_PROFILE, GLUT_DEBUG, Logger, Shower)
     If IsNothing(CurrentContext) Then Exit Sub
     Call VBGLWindow.Create(1600, 900, GLUT_RGBA, "Fumon", "4_6", True)
     CurrentContext.BlendTest = True 
@@ -76,10 +76,7 @@ Private Function ConnectToServer(ByVal Settings As IConfig) As GameServer
     End If
 End Function
 
-Public Function SetUpGameGraphics() As Boolean
-    Dim FreetypePath As String: FreetypePath = "C:\Users\deallulic\Documents\GitHub\VBGL\Code\Src\Graphics\Extensions\Drawables\TextRendering"
-    Dim FontPath     As String: FontPath     = "C:\Users\deallulic\Documents\GitHub\VBGL\Code\Res\Fonts\Consolas.ttf"
-
+Public Function SetUpGameGraphics(ByVal FreetypePath As String, ByVal FontPath As String) As Boolean
     Set UsedFont = VBGLFontLayout.Create(FreetypePath, FontPath, 48)
     Set RenderStack = New std_Stack
     Set InputStack  = New std_Stack
